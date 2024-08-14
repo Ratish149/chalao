@@ -14,11 +14,14 @@ class UserSignupView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSignupSerializer
 
-    def perform_create(self, serializer):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         user=serializer.save()
         otp = get_random_string(length=6,allowed_chars='0123456789')
         user.otp = otp
         user.save()
+        
         send_mail(
             'OTP Verification',
             f'Your OTP is {otp}',
@@ -26,6 +29,30 @@ class UserSignupView(ListCreateAPIView):
             ['ratish.shakya149@gmail.com'],
             fail_silently=False,
         )
+        refresh = RefreshToken.for_user(user)
+        
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+        return Response(
+                    {
+                    'refresh': refresh_token,
+                    'access': access_token,
+                })
+
+class VerifyOTPView(GenericAPIView):
+   
+    def post(self, request, *args, **kwargs):
+        otp = request.data.get('otp')
+        user=request.user
+        try:
+            if user.otp == otp:
+                user.is_verified = True
+                user.save()
+                return Response({'detail': 'Email verified successfully'})
+            else:
+                return Response({'detail': 'Invalid OTP'})
+        except User.DoesNotExist:
+            return Response({'detail': 'Invalid OTP'})
                
 
 class LoginView(GenericAPIView):
@@ -34,21 +61,13 @@ class LoginView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         username=request.data.get('username')
         password=request.data.get('password')
-        otp = request.data.get('otp')
+        # otp = request.data.get('otp')
 
         user=authenticate(username=username,password=password)
 
         if user is not None:
-            if user.otp == otp:
-                user.otp=''
-                user.is_verified=True
-                refresh = RefreshToken.for_user(user)
-                user.save()
-                return Response(
-                    {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                })
+            if user.is_verfied:
+                return Response({'Message':'Login Successful!'})
             else:
                 return Response({'Message':'OTP Failed'})
         else:
