@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'authentication',
     'rest_framework',
     'vehicle_management',
+    'drf_yasg',
+
     
 ]
 
