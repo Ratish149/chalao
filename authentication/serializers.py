@@ -31,4 +31,4 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
     otp = serializers.CharField(max_length=6)
-    
+    token=serializers.CharField(read_only=True)

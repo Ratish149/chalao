@@ -3,6 +3,7 @@ from rest_framework.generics import ListCreateAPIView,GenericAPIView
 from rest_framework.response import Response
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
+from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSignupSerializer,LoginSerializer
 from django.contrib.auth import authenticate
 from .models import User
@@ -41,8 +42,13 @@ class LoginView(GenericAPIView):
             if user.otp == otp:
                 user.otp=''
                 user.is_verified=True
+                refresh = RefreshToken.for_user(user)
                 user.save()
-                return Response({'Message':'Login Successful'})
+                return Response(
+                    {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                })
             else:
                 return Response({'Message':'OTP Failed'})
         else:
