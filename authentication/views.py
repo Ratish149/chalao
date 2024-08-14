@@ -61,7 +61,6 @@ class LoginView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         username=request.data.get('username')
         password=request.data.get('password')
-        # otp = request.data.get('otp')
 
         user=authenticate(username=username,password=password)
 

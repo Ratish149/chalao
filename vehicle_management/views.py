@@ -59,3 +59,20 @@ class VehicleListCreateView(ListCreateAPIView):
 class VehicleEditView(RetrieveUpdateDestroyAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
+
+    def patch(self, request, *args, **kwargs):
+        
+        vehicle=self.get_object()
+        data=request.data
+
+        for field,new_value in data.items():
+            if hasattr(vehicle,field):
+                setattr(vehicle,field,new_value)
+                vehicle.save()
+                return Response({'Message':f'Field {field} updated to {new_value} successfully'})
+            else:
+                return Response({'Message':f'Field {field} does not exist'})
+        vehicle.save()
+       
+
+        
