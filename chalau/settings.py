@@ -118,6 +118,16 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=60),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=60),
 }
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+
 
 AUTH_USER_MODEL = 'authentication.User'
 
