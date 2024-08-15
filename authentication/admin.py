@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import *
+from unfold.admin import ModelAdmin
 # Register your models here.
 
-admin.site.register(User)
-admin.site.register(UserProfile)
-admin.site.register(VendorProfile)
+admin.site.register(User,ModelAdmin)
+admin.site.register(UserProfile,ModelAdmin)
+admin.site.register(VendorProfile,ModelAdmin)

@@ -32,6 +32,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    
+    "unfold", 
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -112,8 +115,8 @@ REST_FRAMEWORK = {
    
 }
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=15),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=15),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=60),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=60),
 }
 
 AUTH_USER_MODEL = 'authentication.User'

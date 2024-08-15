@@ -47,6 +47,7 @@ class VerifyOTPView(GenericAPIView):
         try:
             if user.otp == otp:
                 user.is_verified = True
+                user.otp=""
                 user.save()
                 return Response({'detail': 'Email verified successfully'})
             else:
@@ -90,7 +91,6 @@ class UserProfileView(RetrieveUpdateAPIView):
         user_profile.issued_district = data.get('issued_district')
         user_profile.driving_license_front = data.get('driving_license_front')
         user_profile.driving_license_back = data.get('driving_license_back')
-
 
         user_data=data.get('user')
         user = user_profile.user
