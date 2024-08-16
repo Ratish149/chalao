@@ -11,9 +11,10 @@ class Price(models.Model):
     }
     duration=models.CharField(max_length=100,choices=DURATION)
     price=models.IntegerField()
+    vehicle=models.ForeignKey('Vehicle',on_delete=models.CASCADE,related_name='prices')
 
     def __str__(self):
-        return f'{self.duration} : {self.price}'
+        return f'{self.vehicle.vehicle_name}'
 
 class Vehicle(models.Model):
     TYPE={
@@ -35,15 +36,20 @@ class Vehicle(models.Model):
     CATEGORY={
         'BUDGET':'BUDGET',
     }
+    CONDITION={
+        '1':'1',
+        '2':'2',
+        '3':'3',
+        '4':'4',
+        '5':'5',
+    }
 
     vendor = models.ForeignKey('authentication.User',on_delete=models.CASCADE)
     vehicle_name = models.CharField(max_length=100)
     vehicle_type = models.CharField(max_length=100,choices=TYPE)
     thumbnail_image = models.ImageField(upload_to='vehicle',blank=True, null=True)
 
-    price = models.ManyToManyField(Price, related_name='vehicles')
-
-    bike_condition=models.CharField(max_length=100,blank=True,null=True)
+    bike_condition=models.CharField(max_length=100,choices=CONDITION,blank=True,null=True)
     category=models.CharField(max_length=100,choices=CATEGORY,blank=True,null=True)
     theft_assurance=models.CharField(max_length=100,choices=THEFT_ASSURANCE)
     distance_travelled=models.IntegerField(blank=True,null=True)
@@ -77,7 +83,7 @@ class Booking(models.Model):
     vendor_verified=models.BooleanField(default=False)
     
     def __str__(self):
-        return self.user.username + ' ' + self.vehicle.vehicle_name
+        return self.user.username + ' - ' + self.vehicle.vehicle_name
     
 class BookingImages(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='images')
@@ -86,4 +92,7 @@ class BookingImages(models.Model):
     vehicle_image_left = models.ImageField(upload_to='vehicle',blank=True,null=True)
     vehicle_image_right = models.ImageField(upload_to='vehicle',blank=True,null=True)
     vehicle_image_speedometer = models.ImageField(upload_to='vehicle',blank=True,null=True)
+
+    def __str__(self):
+        return self.booking.user.username + ' - ' + self.booking.vehicle.vehicle_name
     

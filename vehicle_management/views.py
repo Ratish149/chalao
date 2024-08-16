@@ -4,14 +4,16 @@ from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIVi
 from rest_framework.response import Response
 
 from .models import Vehicle,Price,Booking,BookingImages
-from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer
+from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,PriceSerializer
 # Create your views here.
 
 class VehicleListCreateView(ListCreateAPIView):
-    queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
     parser_classes = (MultiPartParser, FormParser)
-    
+
+    def get_queryset(self):
+        return Vehicle.objects.filter(vendor=self.request.user)
+
     def create(self, request, *args, **kwargs):
         
         vendor = request.user
@@ -19,8 +21,6 @@ class VehicleListCreateView(ListCreateAPIView):
         vehicle_name = request.data.get('vehicle_name')
         vehicle_type = request.data.get('vehicle_type')
         thumbnail_image=request.data.get('thumbnail_image')
-
-        price_id=request.data.getlist('price')
 
         bike_condition = request.data.get('bike_condition')
         category = request.data.get('category')
@@ -45,12 +45,20 @@ class VehicleListCreateView(ListCreateAPIView):
             duration=duration,
             discount=discount
         )
-        if price_id:
-            prices=Price.objects.filter(id__in=price_id)
-            vehicle.price.set(prices)
-            
+
+        price=Price.objects.create(
+            vehicle=vehicle,
+            duration=duration,
+            price=discount
+        )
+        price.save()
         vehicle.save()
         return Response({'Message':'Vehicle Added'})
+class PriceListCreateView(ListCreateAPIView):
+    # queryset = Price.objects.all()
+    serializer_class = PriceSerializer
+    def get_queryset(self):
+        return Price.objects.filter(vehicle__vendor=self.request.user)
 
 class VehicleEditView(RetrieveUpdateDestroyAPIView):
     queryset = Vehicle.objects.all()
@@ -74,6 +82,7 @@ class VehicleEditView(RetrieveUpdateDestroyAPIView):
 class BookingListCreateView(ListCreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+    
 
     def create(self, request, *args, **kwargs):
         if not request.user.is_authenticated:

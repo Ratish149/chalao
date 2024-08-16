@@ -7,7 +7,7 @@ class PriceSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class VehicleSerializer(serializers.ModelSerializer):
-    price=PriceSerializer(many=True)
+
     class Meta:
         model = Vehicle
         fields = '__all__'
