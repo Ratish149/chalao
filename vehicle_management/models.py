@@ -1,6 +1,19 @@
+from typing import Iterable
 from django.db import models
 
 # Create your models here.
+
+class Price(models.Model):
+    DURATION={
+        'DAILY':'DAILY',
+        'WEEKLY':'WEEKLY',
+        'MONTHLY':'MONTHLY',
+    }
+    duration=models.CharField(max_length=100,choices=DURATION)
+    price=models.IntegerField()
+
+    def __str__(self):
+        return f'{self.duration} : {self.price}'
 
 class Vehicle(models.Model):
     TYPE={
@@ -26,16 +39,9 @@ class Vehicle(models.Model):
     vendor = models.ForeignKey('authentication.User',on_delete=models.CASCADE)
     vehicle_name = models.CharField(max_length=100)
     vehicle_type = models.CharField(max_length=100,choices=TYPE)
-    
-    vehicle_image_front = models.ImageField(upload_to='vehicle',blank=True,null=True)
-    vehicle_image_back = models.ImageField(upload_to='vehicle',blank=True,null=True)
-    vehicle_image_left = models.ImageField(upload_to='vehicle',blank=True,null=True)
-    vehicle_image_right = models.ImageField(upload_to='vehicle',blank=True,null=True)
-    vehicle_image_speedometer = models.ImageField(upload_to='vehicle',blank=True,null=True)
+    thumbnail_image = models.ImageField(upload_to='vehicle',blank=True, null=True)
 
-    price_per_day = models.IntegerField(blank=True,null=True)
-    price_per_week = models.IntegerField(blank=True,null=True)
-    price_per_month = models.IntegerField(blank=True,null=True)
+    price = models.ManyToManyField(Price, related_name='vehicles')
 
     bike_condition=models.CharField(max_length=100,blank=True,null=True)
     category=models.CharField(max_length=100,choices=CATEGORY,blank=True,null=True)
@@ -49,3 +55,35 @@ class Vehicle(models.Model):
 
     def __str__(self):
         return self.vehicle_name
+    
+class Booking(models.Model):    
+    PAYMENT_METHOD={
+        'CASH':'CASH',
+        'ESEWA':'ESEWA',
+        'CARD':'CARD',
+        'OTHER':'OTHER'
+    }
+
+    user = models.ForeignKey('authentication.User', on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    city = models.CharField(max_length=100)
+    pickup_location = models.CharField(max_length=100)
+    total_price = models.IntegerField()
+    payment_method = models.CharField(max_length=100, choices=PAYMENT_METHOD)
+    cancel_status = models.BooleanField(default=False)
+    user_verified = models.BooleanField(default=False)
+    vendor_verified=models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.user.username + ' ' + self.vehicle.vehicle_name
+    
+class BookingImages(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='images')
+    vehicle_image_front = models.ImageField(upload_to='vehicle',blank=True,null=True)
+    vehicle_image_back = models.ImageField(upload_to='vehicle',blank=True,null=True)
+    vehicle_image_left = models.ImageField(upload_to='vehicle',blank=True,null=True)
+    vehicle_image_right = models.ImageField(upload_to='vehicle',blank=True,null=True)
+    vehicle_image_speedometer = models.ImageField(upload_to='vehicle',blank=True,null=True)
+    

@@ -77,7 +77,7 @@ class LoginView(GenericAPIView):
 class UserProfileView(RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    parser_classes = (MultiPartParser, FormParser)  # Add this to handle file uploads
+    parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request, *args, **kwargs):
         user_profile = UserProfile.objects.get(user=request.user)
@@ -88,7 +88,6 @@ class UserProfileView(RetrieveUpdateAPIView):
         user_profile = UserProfile.objects.get(user=request.user)
         data = request.data
 
-        # Update UserProfile fields
         user_profile.license_number = data.get('license_number', user_profile.license_number)
         user_profile.expiry_date = data.get('expiry_date', user_profile.expiry_date)
         user_profile.issued_district = data.get('issued_district', user_profile.issued_district)
@@ -98,7 +97,6 @@ class UserProfileView(RetrieveUpdateAPIView):
         if 'driving_license_back' in request.FILES:
             user_profile.driving_license_back = request.FILES['driving_license_back']
 
-        # Update User fields
         user_data = data.get('user', {})
         user = user_profile.user
 
@@ -118,7 +116,6 @@ class UserProfileView(RetrieveUpdateAPIView):
         if 'citizenship_back' in request.FILES:
             user.citizenship_back = request.FILES['citizenship_back']
 
-        # Save the changes
         user_profile.save()
         user.save()
 
@@ -137,8 +134,9 @@ class VendorProfileView(RetrieveUpdateAPIView):
         data=request.data
 
         vendor_profile.pan_no = data.get('pan_no')
-        vendor_profile.company_registration = data.get('company_registration')
         vendor_profile.registered_year = data.get('registered_year')
+        if 'company_registration' in request.FILES:
+            vendor_profile.company_registration = request.FILES['company_registration']
 
         user_data=data.get('user')
         user = vendor_profile.user
