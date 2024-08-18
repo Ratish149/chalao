@@ -167,18 +167,6 @@ class ExtendBookingView(ListCreateAPIView):
     queryset = ExtendBooking.objects.all()
     serializer_class = ExtendBookingSerializer
 
-    # def get_queryset(self): 
-    #     pk = self.kwargs.get('pk')
-    #     if pk:
-    #         booking= Booking.objects.filter(id=pk, user=self.request.user)
-    #         if booking.exists():
-    #             return booking
-    #         else:
-    #             return Response({'Message': 'Booking Not Found'})
-
-    #     return Booking.objects.filter(user=self.request.user)
-    #     # return Booking.objects.filter(user=self.request.user)
-
     def get(self, request, *args, **kwargs):
         """
         Retrieve ExtendBooking details for the authenticated user.
@@ -186,14 +174,14 @@ class ExtendBookingView(ListCreateAPIView):
         booking_id = self.kwargs.get('pk')
         try:
             # Retrieve the ExtendBooking instance
-            booking = Booking.objects.get(
-                id=booking_id,
-                user=request.user
+            extend_booking = ExtendBooking.objects.get(
+                booking__id=booking_id,
+                booking__user=request.user
             )
         except:
-            return Response({'Message': 'booking not found or does not belong to the user'}, status=404)
+            return Response({'Message': 'ExtendBooking not found or does not belong to the user'}, status=404)
 
-        serializer = self.get_serializer(booking)
+        serializer = self.get_serializer(extend_booking)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
