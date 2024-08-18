@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
@@ -13,14 +14,67 @@ class VehicleListCreateView(ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        
-        if self.request.query_params.get('vehicle_name', None):
-            return Vehicle.objects.filter(vehicle_name=self.request.query_params.get('vehicle_name'))
+        query=Vehicle.objects.all()
+       
         if user.user_type == 'VENDOR':
             return Vehicle.objects.filter(vendor=user)
-        else:
-            return Vehicle.objects.all()
         
+        filters= Q()
+        
+        vehicle_name=self.request.query_params.get('vehicle_name',None)
+        vehicle_type=self.request.query_params.get('vehicle_type',None)
+        category=self.request.query_params.get('category',None)
+        bike_condition=self.request.query_params.get('bike_condition',None)
+        theft_assurance=self.request.query_params.get('theft_assurance',None)
+        distance_travelled=self.request.query_params.get('distance_travelled',None)
+        duration=self.request.query_params.get('duration',None)
+        power_min = self.request.query_params.get('power_min', None)
+        power_max = self.request.query_params.get('power_max', None)
+
+        if vehicle_name:
+            filters &= Q(vehicle_name__icontains=vehicle_name)
+
+        if vehicle_type:
+            filters &= Q(vehicle_type__icontains=vehicle_type)
+
+        if category:
+            filters &= Q(category__icontains=category)
+
+        if bike_condition:
+            filters &= Q(bike_condition__icontains=bike_condition)
+
+        if theft_assurance:
+            filters &= Q(theft_assurance__icontains=theft_assurance)
+
+        if distance_travelled:
+            filters &= Q(distance_travelled__icontains=distance_travelled)
+
+        if duration:
+            filters &= Q(duration__icontains=duration)
+
+        if power_min is not None and power_max is not None:
+            filters &= Q(power__range=(power_min, power_max))
+        elif power_min is not None:
+            filters &= Q(power__gte=power_min)
+        elif power_max is not None:
+            filters &= Q(power__lte=power_max)
+
+        # filter_query=query.filter(filters)
+
+        # if not filter_query.exists():
+        #     return Response({'Message': 'No vehicles found matching the provided filters'}, status=404)
+
+        return query.filter(filters)
+    
+    def get(self, request, *args, **kwargs):
+
+        queryset = self.get_queryset()
+        
+        if not queryset.exists():
+            return Response({'Message': 'No vehicles found'}, status=404)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         
