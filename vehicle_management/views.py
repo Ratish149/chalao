@@ -13,23 +13,26 @@ class VehicleListCreateView(ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get_queryset(self):
+        
         user = self.request.user
-        query=Vehicle.objects.all()
-       
         if user.user_type == 'VENDOR':
             return Vehicle.objects.filter(vendor=user)
-        
-        filters= Q()
-        
-        vehicle_name=self.request.query_params.get('vehicle_name',None)
-        vehicle_type=self.request.query_params.get('vehicle_type',None)
-        category=self.request.query_params.get('category',None)
-        bike_condition=self.request.query_params.get('bike_condition',None)
-        theft_assurance=self.request.query_params.get('theft_assurance',None)
-        distance_travelled=self.request.query_params.get('distance_travelled',None)
-        duration=self.request.query_params.get('duration',None)
-        power_min = self.request.query_params.get('power_min', None)
-        power_max = self.request.query_params.get('power_max', None)
+        return Vehicle.objects.all()
+
+    def get(self, request, *args, **kwargs):
+
+        queryset = self.get_queryset()
+        filters = Q()
+
+        vehicle_name = request.query_params.get('vehicle_name', None)
+        vehicle_type = request.query_params.get('vehicle_type', None)
+        category = request.query_params.get('category', None)
+        bike_condition = request.query_params.get('bike_condition', None)
+        theft_assurance = request.query_params.get('theft_assurance', None)
+        distance_travelled = request.query_params.get('distance_travelled', None)
+        duration = request.query_params.get('duration', None)
+        power_min = request.query_params.get('power_min', None)
+        power_max = request.query_params.get('power_max', None)
 
         if vehicle_name:
             filters &= Q(vehicle_name__icontains=vehicle_name)
@@ -59,21 +62,12 @@ class VehicleListCreateView(ListCreateAPIView):
         elif power_max is not None:
             filters &= Q(power__lte=power_max)
 
-        # filter_query=query.filter(filters)
+        filtered_queryset = queryset.filter(filters)
 
-        # if not filter_query.exists():
-        #     return Response({'Message': 'No vehicles found matching the provided filters'}, status=404)
+        if not filtered_queryset.exists():
+            return Response({'Message': 'No vehicles found matching the provided filters'})
 
-        return query.filter(filters)
-    
-    def get(self, request, *args, **kwargs):
-
-        queryset = self.get_queryset()
-        
-        if not queryset.exists():
-            return Response({'Message': 'No vehicles found'}, status=404)
-
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(filtered_queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
