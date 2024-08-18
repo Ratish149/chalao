@@ -1,20 +1,16 @@
 from django.contrib import admin
-from .models import *
-from unfold.admin import ModelAdmin
-# Register your models here.
-from django.contrib import admin
-from unfold.admin import ModelAdmin as UnfoldModelAdmin
+from unfold.admin import TabularInline, ModelAdmin
 from .models import User, UserProfile, VendorProfile
 
-class UserProfileInline( admin.TabularInline):
+class UserProfileInline(TabularInline):
     model = UserProfile
     extra = 1
 
-class VendorProfileInline( admin.TabularInline):
+class VendorProfileInline(TabularInline):
     model = VendorProfile
     extra = 1
 
-class UserAdmin(UnfoldModelAdmin, admin.ModelAdmin):
+class UserAdmin(ModelAdmin):
     inlines = []
 
     def get_inline_instances(self, request, obj=None):
@@ -27,5 +23,5 @@ class UserAdmin(UnfoldModelAdmin, admin.ModelAdmin):
         return inline_instances
 
 admin.site.register(User, UserAdmin)
-admin.site.register(UserProfile,ModelAdmin)
-admin.site.register(VendorProfile,ModelAdmin)
+admin.site.register(UserProfile, ModelAdmin)
+admin.site.register(VendorProfile, ModelAdmin)

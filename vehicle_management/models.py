@@ -96,3 +96,13 @@ class BookingImages(models.Model):
     def __str__(self):
         return self.booking.user.username + ' - ' + self.booking.vehicle.vehicle_name
     
+class ExtendBooking(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    price = models.IntegerField()
+    remarks = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.booking.user.username + ' - ' + self.booking.vehicle.vehicle_name
+    

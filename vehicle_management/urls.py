@@ -8,4 +8,5 @@ urlpatterns = [
     path('booking/', BookingListCreateView.as_view(), name='booking'),
     path('booking/upload-images/', BookingImageUploadView.as_view(), name='upload-images'),
     path('booking/verify-booking/<int:pk>', BookingVerifyView.as_view(), name='verify-booking'),
+    path('extend-booking/<int:pk>', ExtendBookingView.as_view(), name='extend-booking'),
 ]

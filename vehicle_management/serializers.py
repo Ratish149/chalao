@@ -21,3 +21,8 @@ class BookingImagesSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookingImages
         fields = '__all__'
+
+class ExtendBookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = '__all__'

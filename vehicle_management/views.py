@@ -3,8 +3,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 
-from .models import Vehicle,Price,Booking,BookingImages
-from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,PriceSerializer
+from .models import Vehicle,Price,Booking,BookingImages,ExtendBooking
+from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,PriceSerializer,ExtendBookingSerializer
 # Create your views here.
 
 class VehicleListCreateView(ListCreateAPIView):
@@ -81,8 +81,7 @@ class VehicleEditView(RetrieveUpdateDestroyAPIView):
 
 class BookingListCreateView(ListCreateAPIView):
     queryset = Booking.objects.all()
-    serializer_class = BookingSerializer
-    
+    serializer_class = BookingSerializer  
 
     def create(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -163,3 +162,58 @@ class BookingVerifyView(RetrieveUpdateDestroyAPIView):
         else:
             return Response({'Message':'Permission Denied'})
              
+
+class ExtendBookingView(ListCreateAPIView):
+    queryset = ExtendBooking.objects.all()
+    serializer_class = ExtendBookingSerializer
+
+    # def get_queryset(self): 
+    #     pk = self.kwargs.get('pk')
+    #     if pk:
+    #         booking= Booking.objects.filter(id=pk, user=self.request.user)
+    #         if booking.exists():
+    #             return booking
+    #         else:
+    #             return Response({'Message': 'Booking Not Found'})
+
+    #     return Booking.objects.filter(user=self.request.user)
+    #     # return Booking.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Retrieve ExtendBooking details for the authenticated user.
+        """
+        booking_id = self.kwargs.get('pk')
+        try:
+            # Retrieve the ExtendBooking instance
+            booking = Booking.objects.get(
+                id=booking_id,
+                user=request.user
+            )
+        except:
+            return Response({'Message': 'booking not found or does not belong to the user'}, status=404)
+
+        serializer = self.get_serializer(booking)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        booking_id = self.kwargs.get('pk') 
+        booking=Booking.objects.get(id=booking_id, user=self.request.user)
+        if request.user != booking.user:
+            return Response({'Message': 'Permission Denied'})
+
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        price = request.data.get('price')
+        remarks = request.data.get('remarks', '')
+
+        extend_booking = ExtendBooking.objects.create(
+            booking=booking,
+            start_date=start_date,
+            end_date=end_date,
+            price=price,
+            remarks=remarks
+        )
+        extend_booking.save()
+
+        return Response({'Message': 'Booking Extended Successfully'})
