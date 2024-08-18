@@ -12,7 +12,15 @@ class VehicleListCreateView(ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get_queryset(self):
-        return Vehicle.objects.filter(vendor=self.request.user)
+        user = self.request.user
+        
+        if self.request.query_params.get('vehicle_name', None):
+            return Vehicle.objects.filter(vehicle_name=self.request.query_params.get('vehicle_name'))
+        if user.user_type == 'VENDOR':
+            return Vehicle.objects.filter(vendor=user)
+        else:
+            return Vehicle.objects.all()
+        
 
     def create(self, request, *args, **kwargs):
         
@@ -168,18 +176,16 @@ class ExtendBookingView(ListCreateAPIView):
     serializer_class = ExtendBookingSerializer
 
     def get(self, request, *args, **kwargs):
-        """
-        Retrieve ExtendBooking details for the authenticated user.
-        """
+
         booking_id = self.kwargs.get('pk')
         try:
-            # Retrieve the ExtendBooking instance
+
             extend_booking = ExtendBooking.objects.get(
                 booking__id=booking_id,
                 booking__user=request.user
             )
         except:
-            return Response({'Message': 'ExtendBooking not found or does not belong to the user'}, status=404)
+            return Response({'Message': 'ExtendBooking not found or does not belong to the user'})
 
         serializer = self.get_serializer(extend_booking)
         return Response(serializer.data)
@@ -204,4 +210,4 @@ class ExtendBookingView(ListCreateAPIView):
         )
         extend_booking.save()
 
-        return Response({'Message': 'Booking Extended Successfully'})
+        return Response({'Data': ExtendBookingSerializer(extend_booking).data,'Message': 'Booking Extended Successfully'})
