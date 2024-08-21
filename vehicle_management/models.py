@@ -105,4 +105,11 @@ class ExtendBooking(models.Model):
 
     def __str__(self):
         return self.booking.user.username + ' - ' + self.booking.vehicle.vehicle_name
+
+class CancelBooking(models.Model):
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    remarks = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.booking.user.username + ' - ' + self.booking.vehicle.vehicle_name+ ' - ' + self.remarks
     

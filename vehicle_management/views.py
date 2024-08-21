@@ -4,7 +4,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 
-from .models import Vehicle,Price,Booking,BookingImages,ExtendBooking
+from .models import Vehicle,Price,Booking,BookingImages,ExtendBooking,CancelBooking
 from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,PriceSerializer,ExtendBookingSerializer
 # Create your views here.
 
@@ -156,6 +156,7 @@ class BookingListCreateView(ListCreateAPIView):
         
         if vehicle.available:
             vehicle.is_booked=True
+            vehicle.available=False
             vehicle.save()
         
         booking = Booking.objects.create(
@@ -266,3 +267,23 @@ class ExtendBookingView(ListCreateAPIView):
         extend_booking.save()
 
         return Response({'Data': ExtendBookingSerializer(extend_booking).data,'Message': 'Booking Extended Successfully'})
+
+class CancelBookingView(RetrieveUpdateDestroyAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+
+    def patch(self, request, *args, **kwargs):
+        booking = self.get_object()
+        remarks = request.data.get('remarks', None)
+
+        if request.user == booking.user or request.user == booking.vehicle.vendor:
+            booking.cancel_status = True
+            booking.vehicle.available = True
+            booking.save()           
+            CancelBooking.objects.create(
+                    booking=booking,
+                    remarks=remarks
+            )
+            return Response({'Message': 'Booking Cancelled'})
+        else:
+            return Response({'Message': 'Permission Denied'})
