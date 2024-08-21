@@ -130,6 +130,10 @@ SWAGGER_SETTINGS = {
     }
 }
 
+AUTHENTICATION_BACKENDS = [
+    'authentication.authentication.EmailBackend',  # Custom authentication backend
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+]
 
 AUTH_USER_MODEL = 'authentication.User'
 

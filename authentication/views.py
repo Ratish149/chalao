@@ -9,6 +9,7 @@ from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSeriali
 from django.contrib.auth import authenticate
 from .models import User,UserProfile,VendorProfile
 
+
 # Create your views here.
 
 class UserSignupView(ListCreateAPIView):
@@ -17,11 +18,13 @@ class UserSignupView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
 
-        username=request.data.get('username')
         email=request.data.get('email')
+        username=email.split('@')[0]
+
         password=request.data.get('password')
         confirm_password=request.data.get('confirm_password')
         user_type=request.data.get('user_type')
+
 
         if password == confirm_password:
             if User.objects.filter(username=username).exists():
@@ -87,7 +90,10 @@ class LoginView(GenericAPIView):
         username=request.data.get('username')
         password=request.data.get('password')
 
-        user=authenticate(username=username,password=password)
+        if '@' in username:
+            username=username.split('@')[0]
+
+        user = authenticate(username=username, password=password)
 
         if user is not None:
             if user.is_verfied:
