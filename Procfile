@@ -1,0 +1,1 @@
+web: gunicorn chalau.wsgi --log-file -

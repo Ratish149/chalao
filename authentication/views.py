@@ -9,7 +9,6 @@ from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSeriali
 from django.contrib.auth import authenticate
 from .models import User,UserProfile,VendorProfile
 
-
 # Create your views here.
 
 class UserSignupView(ListCreateAPIView):
@@ -20,11 +19,9 @@ class UserSignupView(ListCreateAPIView):
 
         email=request.data.get('email')
         username=email.split('@')[0]
-
         password=request.data.get('password')
         confirm_password=request.data.get('confirm_password')
         user_type=request.data.get('user_type')
-
 
         if password == confirm_password:
             if User.objects.filter(username=username).exists():
@@ -99,7 +96,7 @@ class LoginView(GenericAPIView):
             if user.is_verfied:
                 return Response({'Message':'Login Successful!'})
             else:
-                return Response({'Message':'OTP Failed'})
+                return Response({'Message':'Email not verified'})
         else:
             return Response({'Message':'Login Failed'})
         
@@ -107,6 +104,12 @@ class UserProfileView(RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     parser_classes = (MultiPartParser, FormParser)
+    
+    def get_parsers(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return []
+
+        return super().get_parsers()
 
     def get(self, request, *args, **kwargs):
         user_profile = UserProfile.objects.get(user=request.user)
@@ -149,9 +152,16 @@ class UserProfileView(RetrieveUpdateAPIView):
         user.save()
 
         return Response({'detail': 'Profile updated successfully', 'Data': UserProfileSerializer(user_profile).data})
+
 class VendorProfileView(RetrieveUpdateAPIView):
     queryset = VendorProfile.objects.all()
     serializer_class = VendorProfileSerializer
+
+    def get_parsers(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return []
+
+        return super().get_parsers()
 
     def get(self, request, *args, **kwargs):
         vendor_profile = VendorProfile.objects.get(user=request.user)

@@ -26,6 +26,7 @@ class VehicleListCreateView(ListCreateAPIView):
 
         vehicle_name = request.query_params.get('vehicle_name', None)
         vehicle_type = request.query_params.get('vehicle_type', None)
+        
         category = request.query_params.get('category', None)
         bike_condition = request.query_params.get('bike_condition', None)
         theft_assurance = request.query_params.get('theft_assurance', None)
@@ -88,7 +89,7 @@ class VehicleListCreateView(ListCreateAPIView):
         discount = request.data.get('discount')
         
         vehicle=Vehicle.objects.create(
-            vendor=request.user,  
+            vendor=vendor,  
             vehicle_name=vehicle_name,
             vehicle_type=vehicle_type,
             thumbnail_image=thumbnail_image,
@@ -173,6 +174,12 @@ class BookingImageUploadView(ListCreateAPIView):
     queryset = BookingImages.objects.all()
     serializer_class= BookingImagesSerializer
     parser_classes = (MultiPartParser, FormParser)
+
+    def get_parsers(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return []
+
+        return super().get_parsers()
 
     def create(self, request, *args, **kwargs):
         booking_id=request.data.get('booking_id')
