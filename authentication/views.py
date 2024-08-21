@@ -16,9 +16,28 @@ class UserSignupView(ListCreateAPIView):
     serializer_class = UserSignupSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user=serializer.save()
+
+        username=request.data.get('username')
+        email=request.data.get('email')
+        password=request.data.get('password')
+        confirm_password=request.data.get('confirm_password')
+        user_type=request.data.get('user_type')
+
+        if password == confirm_password:
+            if User.objects.filter(username=username).exists():
+                return Response({'detail': 'Username already exists'})
+            elif User.objects.filter(email=email).exists():
+                return Response({'detail': 'Email already exists'})
+            else:
+                user=User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password,
+                    user_type=user_type
+                )
+        else:
+            return Response({'detail': 'password and confirm password do not match'})
+
         otp = get_random_string(length=6,allowed_chars='0123456789')
         user.otp = otp
         user.save()
@@ -27,11 +46,15 @@ class UserSignupView(ListCreateAPIView):
             'OTP Verification',
             f'Your OTP is {otp}',
             'bdevil149@gmail.com',
-            ['ratish.shakya149@gmail.com'],
+            ['ratish.shakya149@gmail.com',user.email],
             fail_silently=False,
         )
-        refresh = RefreshToken.for_user(user)
-        
+        if user.user_type == 'VENDOR':
+            VendorProfile.objects.create(user=user)
+        elif user.user_type == 'USER':
+            UserProfile.objects.create(user=user)
+
+        refresh = RefreshToken.for_user(user) 
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
         return Response(
