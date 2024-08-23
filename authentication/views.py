@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.generics import ListCreateAPIView,GenericAPIView,RetrieveUpdateAPIView
 from rest_framework.response import Response
+from django.core.exceptions import ValidationError
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -93,7 +94,7 @@ class LoginView(GenericAPIView):
         user = authenticate(username=username, password=password)
 
         if user is not None:
-            if user.is_verfied:
+            if user.is_verified:
                 return Response({'Message':'Login Successful!'})
             else:
                 return Response({'Message':'Email not verified'})
@@ -103,12 +104,11 @@ class LoginView(GenericAPIView):
 class UserProfileView(RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser,JSONParser)
     
     def get_parsers(self):
         if getattr(self, 'swagger_fake_view', False):
             return []
-
         return super().get_parsers()
 
     def get(self, request, *args, **kwargs):
@@ -117,50 +117,65 @@ class UserProfileView(RetrieveUpdateAPIView):
         return Response(serializer.data)
     
     def patch(self, request, *args, **kwargs):
-        user_profile = UserProfile.objects.get(user=request.user)
-        data = request.data
-
-        user_profile.license_number = data.get('license_number', user_profile.license_number)
-        user_profile.expiry_date = data.get('expiry_date', user_profile.expiry_date)
-        user_profile.issued_district = data.get('issued_district', user_profile.issued_district)
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+            data = request.data
+            
+            # Update UserProfile fields
+            user_profile.license_number = data.get('license_number', user_profile.license_number)
+            user_profile.expiry_date = data.get('expiry_date', user_profile.expiry_date)
+            user_profile.issued_district = data.get('issued_district', user_profile.issued_district)
+            
+            # Handle file uploads for UserProfile
+            if 'driving_license_front' in request.FILES:
+                user_profile.driving_license_front = request.FILES['driving_license_front']
+            if 'driving_license_back' in request.FILES:
+                user_profile.driving_license_back = request.FILES['driving_license_back']
+            
+            # Update User fields
+            user = user_profile.user
+            user_fields = ['full_name', 'phonenumber', 'address', 'dateofbirth', 'gender', 
+                           'occupation', 'citizenship_number', 'nid_number', 'issued_date', 'issued_district']
+            
+            for field in user_fields:
+                key = f'user[{field}]'
+                if key in data:
+                    setattr(user, field, data[key])
+            
+            # Handle file uploads for User
+            if 'user[citizenship_front]' in request.FILES:
+                user.citizenship_front = request.FILES['user[citizenship_front]']
+            if 'user[citizenship_back]' in request.FILES:
+                user.citizenship_back = request.FILES['user[citizenship_back]']
+            
+            user_profile.save()
+            user.save()
+            
+            return Response({
+                'detail': 'Profile updated successfully',
+                'Data': UserProfileSerializer(user_profile).data
+            })
         
-        if 'driving_license_front' in request.FILES:
-            user_profile.driving_license_front = request.FILES['driving_license_front']
-        if 'driving_license_back' in request.FILES:
-            user_profile.driving_license_back = request.FILES['driving_license_back']
-
-        user_data = data.get('user', {})
-        user = user_profile.user
-
-        user.full_name = user_data.get('full_name', user.full_name)
-        user.phonenumber = user_data.get('phonenumber', user.phonenumber)
-        user.address = user_data.get('address', user.address)
-        user.dateofbirth = user_data.get('dateofbirth', user.dateofbirth)
-        user.gender = user_data.get('gender', user.gender)
-        user.occupation = user_data.get('occupation', user.occupation)
-        user.citizenship_number = user_data.get('citizenship_number', user.citizenship_number)
-        user.nid_number = user_data.get('nid_number', user.nid_number)
-        user.issued_date = user_data.get('issued_date', user.issued_date)
-        user.issued_district = user_data.get('issued_district', user.issued_district)
-
-        if 'citizenship_front' in request.FILES:
-            user.citizenship_front = request.FILES['citizenship_front']
-        if 'citizenship_back' in request.FILES:
-            user.citizenship_back = request.FILES['citizenship_back']
-
-        user_profile.save()
-        user.save()
-
-        return Response({'detail': 'Profile updated successfully', 'Data': UserProfileSerializer(user_profile).data})
-
-class VendorProfileView(RetrieveUpdateAPIView):
-    queryset = VendorProfile.objects.all()
-    serializer_class = VendorProfileSerializer
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'User profile not found'}, status=404)
+        except ValidationError as e:
+            return Response({'error': str(e)}, status=400)
+        except Exception as e:
+            return Response({'error': 'An unexpected error occurred'}, status=500)
 
     def get_parsers(self):
         if getattr(self, 'swagger_fake_view', False):
             return []
+        return super().get_parsers()
+        
+class VendorProfileView(RetrieveUpdateAPIView):
+    queryset = VendorProfile.objects.all()
+    serializer_class = VendorProfileSerializer
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
+    def get_parsers(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return []
         return super().get_parsers()
 
     def get(self, request, *args, **kwargs):
@@ -169,34 +184,45 @@ class VendorProfileView(RetrieveUpdateAPIView):
         return Response(serializer.data)
     
     def patch(self, request, *args, **kwargs):
-        vendor_profile = VendorProfile.objects.get(user=self.request.user)
-        data=request.data
-
-        vendor_profile.pan_no = data.get('pan_no')
-        vendor_profile.registered_year = data.get('registered_year')
-        if 'company_registration' in request.FILES:
-            vendor_profile.company_registration = request.FILES['company_registration']
-
-        user_data=data.get('user')
-        user = vendor_profile.user
-
-        user.full_name = user_data.get('full_name', user.full_name)
-        user.phonenumber = user_data.get('phonenumber', user.phonenumber)
-        user.address = user_data.get('address', user.address)
-        user.dateofbirth = user_data.get('dateofbirth', user.dateofbirth)
-        user.gender = user_data.get('gender', user.gender)
-        user.occupation = user_data.get('occupation', user.occupation)
-        user.citizenship_number = user_data.get('citizenship_number', user.citizenship_number)
-        user.nid_number = user_data.get('nid_number', user.nid_number)
-        user.issued_date = user_data.get('issued_date', user.issued_date)
-        user.issued_district = user_data.get('issued_district', user.issued_district)
-
-        if 'citizenship_front' in request.FILES:
-            user.citizenship_front = request.FILES['citizenship_front']
-        if 'citizenship_back' in request.FILES:
-            user.citizenship_back = request.FILES['citizenship_back']
-
-        vendor_profile.save()
-        user.save()
-        return Response({'detail': 'Profile updated successfully','Data':VendorProfileSerializer(vendor_profile).data})
+        try:
+            vendor_profile = VendorProfile.objects.get(user=self.request.user)
+            data = request.data
+            
+            # Update VendorProfile fields
+            vendor_profile.pan_no = data.get('pan_no', vendor_profile.pan_no)
+            vendor_profile.registered_year = data.get('registered_year', vendor_profile.registered_year)
+            
+            # Handle file upload for VendorProfile
+            if 'company_registration' in request.FILES:
+                vendor_profile.company_registration = request.FILES['company_registration']
+            
+            # Update User fields
+            user = vendor_profile.user
+            user_fields = ['full_name', 'phonenumber', 'address', 'dateofbirth', 'gender', 
+                           'occupation', 'citizenship_number', 'nid_number', 'issued_date', 'issued_district']
+            
+            for field in user_fields:
+                key = f'user[{field}]'
+                if key in data:
+                    setattr(user, field, data[key])
+            
+            # Handle file uploads for User
+            if 'user[citizenship_front]' in request.FILES:
+                user.citizenship_front = request.FILES['user[citizenship_front]']
+            if 'user[citizenship_back]' in request.FILES:
+                user.citizenship_back = request.FILES['user[citizenship_back]']
+            
+            vendor_profile.save()
+            user.save()
+            
+            return Response({
+                'detail': 'Profile updated successfully',
+                'Data': VendorProfileSerializer(vendor_profile).data
+            })
         
+        except VendorProfile.DoesNotExist:
+            return Response({'error': 'Vendor profile not found'}, status=404)
+        except ValidationError as e:
+            return Response({'error': str(e)}, status=400)
+        except Exception as e:
+            return Response({'error': 'An unexpected error occurred'}, status=500)

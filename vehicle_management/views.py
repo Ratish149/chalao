@@ -14,9 +14,10 @@ class VehicleListCreateView(ListCreateAPIView):
 
     def get_queryset(self):
         
-        user = self.request.user
-        if user.user_type == 'VENDOR':
-            return Vehicle.objects.filter(vendor=user)
+        if self.request.user:
+            user = self.request.user
+            if user.user_type == 'VENDOR':
+                return Vehicle.objects.filter(vendor=user)
         return Vehicle.objects.all()
 
     def get(self, request, *args, **kwargs):
@@ -137,7 +138,7 @@ class VehicleEditView(RetrieveUpdateDestroyAPIView):
         vehicle.save()
 
 class BookingListCreateView(ListCreateAPIView):
-    queryset = Booking.objects.all()
+    queryset = Booking.objects.filter(cancel_status=False)
     serializer_class = BookingSerializer  
 
     def create(self, request, *args, **kwargs):
@@ -172,7 +173,7 @@ class BookingListCreateView(ListCreateAPIView):
         return Response({'Message':'Booking Confirmed'})
 
 class BookingImageUploadView(ListCreateAPIView):
-    queryset = BookingImages.objects.all()
+    queryset = BookingImages.objects.filter()
     serializer_class= BookingImagesSerializer
     parser_classes = (MultiPartParser, FormParser)
 
