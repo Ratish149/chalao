@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer
+from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer,VerifyOTPSerializer
 from django.contrib.auth import authenticate
 from .models import User,UserProfile,VendorProfile
 
@@ -69,6 +69,7 @@ class UserSignupView(ListCreateAPIView):
                 })
 
 class VerifyOTPView(GenericAPIView):
+    serializer_class = VerifyOTPSerializer
    
     def post(self, request, *args, **kwargs):
         otp = request.data.get('otp')

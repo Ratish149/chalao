@@ -16,7 +16,6 @@ import datetime
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -27,7 +26,6 @@ SECRET_KEY = 'django-insecure-h-+(5!1qyxpk=^s(^p_4_y-(q=uoy$jnqp_)r1p(@j(#4t!806
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -79,7 +77,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'chalau.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -89,7 +86,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -116,6 +112,7 @@ REST_FRAMEWORK = {
     )
    
 }
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=60),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=60),
@@ -130,9 +127,7 @@ SWAGGER_SETTINGS = {
     }
 }
 
-
 AUTH_USER_MODEL = 'authentication.User'
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

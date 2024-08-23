@@ -12,6 +12,9 @@ class UserSignupSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True},
         }
+class VerifyOTPSerializer(serializers.Serializer):
+    otp=serializers.CharField(max_length=6)
+    
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
