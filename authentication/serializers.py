@@ -18,6 +18,9 @@ class LoginSerializer(serializers.Serializer):
     otp = serializers.CharField(max_length=6)
     token=serializers.CharField(read_only=True)
 
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password=serializers.CharField(write_only=True,required=True)
+    new_password=serializers.CharField(write_only=True,required=True)
 
 class UserSerializer(serializers.ModelSerializer):
  

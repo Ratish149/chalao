@@ -6,10 +6,17 @@ from django.core.exceptions import ValidationError
 from django.utils.crypto import get_random_string
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer
+from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer
 from django.contrib.auth import authenticate
 from .models import User,UserProfile,VendorProfile
 
+def get_tokens_for_user(user):
+    refresh = RefreshToken.for_user(user)
+
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 # Create your views here.
 
 class UserSignupView(ListCreateAPIView):
@@ -55,13 +62,10 @@ class UserSignupView(ListCreateAPIView):
         elif user.user_type == 'USER':
             UserProfile.objects.create(user=user)
 
-        refresh = RefreshToken.for_user(user) 
-        access_token = str(refresh.access_token)
-        refresh_token = str(refresh)
+        token=get_tokens_for_user(user)
         return Response(
                     {
-                    'refresh': refresh_token,
-                    'access': access_token,
+                    "token":token
                 })
 
 class VerifyOTPView(GenericAPIView):
@@ -95,11 +99,35 @@ class LoginView(GenericAPIView):
 
         if user is not None:
             if user.is_verified:
-                return Response({'Message':'Login Successful!'})
+                token=get_tokens_for_user(user)
+                return Response(
+                    {
+                    "token":token,
+                    'Message':'Login Successful!'
+                })
+                
             else:
                 return Response({'Message':'Email not verified'})
         else:
             return Response({'Message':'Login Failed'})
+
+class ChangePasswordView(GenericAPIView):
+    serializer_class = ChangePasswordSerializer
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+
+        if not old_password or not new_password:
+            return Response({'detail': 'Old password and new password are required'})
+        
+        if not user.check_password(old_password):
+            return Response({'detail': 'Old password is incorrect'})
+        
+        user.set_password(new_password)
+        user.save()
+        return Response({'detail': 'Password changed successfully'})
         
 class UserProfileView(RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
