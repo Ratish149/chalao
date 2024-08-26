@@ -3,10 +3,13 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.generics import ListCreateAPIView,GenericAPIView,RetrieveUpdateAPIView
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
+from django.contrib.auth.tokens import default_token_generator
 from django.utils.crypto import get_random_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer,VerifyOTPSerializer
+from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer,VerifyOTPSerializer,PasswordResetSerializer,PasswordResetConfirmSerializer
 from django.contrib.auth import authenticate
 from .models import User,UserProfile,VendorProfile
 
@@ -147,7 +150,65 @@ class ChangePasswordView(GenericAPIView):
         user.set_password(new_password)
         user.save()
         return Response({'detail': 'Password changed successfully'})
+
+class PasswordResetView(GenericAPIView):
+    serializer_class = PasswordResetSerializer
+
+    def post(self,request,*args, **kwargs):
+        email=request.data.get('email')
+
+        if not email:
+            return Response({'detail': 'Email is required'})
+
+        try:
+            user=User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'})
         
+        token=default_token_generator.make_token(user)
+        # user.token=token
+        uid=urlsafe_base64_encode(force_bytes(user.pk))
+        reset_link= f'http://localhost:3000/reset-password/{uid}/{token}'
+
+        subject = 'Password Reset Link'
+        message=f'Click the following link to reset your password: {reset_link}'
+
+        try:
+            send_mail(
+                subject,
+                message,
+                'bdevil149@gmail.com',
+                ['ratish.shakya149@gmail.com',email],
+                fail_silently=False,
+            )
+            return Response({'detail': 'Password reset link sent to your email'})
+        except:
+            return Response({'detail': 'Failed to send password reset link'})
+
+class PasswordResetConfirmView(GenericAPIView):
+    serializer_class = PasswordResetConfirmSerializer
+
+    def post(self, request, *args, **kwargs):
+        uid = request.data.get('uid')
+        token = request.data.get('token')
+        new_password = request.data.get('new_password')
+        
+        if not uid or not token or not new_password:
+            return Response({'detail': 'UID, token, and new password are required'})
+        
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            return Response({'detail': 'Invalid user ID or token'})
+
+        if default_token_generator.check_token(user, token):   
+            user.set_password(new_password)
+            user.save()
+            return Response({'detail': 'Password reset successful'})
+        else:
+            return Response({'detail': 'Invalid or expired token'})
+
 class UserProfileView(RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
