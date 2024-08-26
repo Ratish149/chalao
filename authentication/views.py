@@ -168,7 +168,7 @@ class PasswordResetView(GenericAPIView):
         token=default_token_generator.make_token(user)
         # user.token=token
         uid=urlsafe_base64_encode(force_bytes(user.pk))
-        reset_link= f'http://localhost:3000/reset-password/{uid}/{token}'
+        reset_link= f'http://localhost:3000/reset-password/?uid={uid}&token={token}'
 
         subject = 'Password Reset Link'
         message=f'Click the following link to reset your password: {reset_link}'
