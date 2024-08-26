@@ -24,54 +24,66 @@ class UserSignupView(ListCreateAPIView):
     serializer_class = UserSignupSerializer
 
     def create(self, request, *args, **kwargs):
+        try:
+            full_name=request.data.get('full_name')
+            phonenumber=request.data.get('phone_number')
+            email=request.data.get('email')
+            username=email.split('@')[0]
+            password=request.data.get('password')
+            confirm_password=request.data.get('confirm_password')
+            user_type=request.data.get('user_type')
 
-        email=request.data.get('email')
-        username=email.split('@')[0]
-        password=request.data.get('password')
-        confirm_password=request.data.get('confirm_password')
-        user_type=request.data.get('user_type')
-
-        if password == confirm_password:
+            if password != confirm_password:
+                return Response({'detail': 'Password and confirm password do not match'})
+            
             if User.objects.filter(username=username).exists():
                 return Response({'detail': 'Username already exists'})
             elif User.objects.filter(email=email).exists():
                 return Response({'detail': 'Email already exists'})
-            else:
-                user=User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                    user_type=user_type
+            elif User.objects.filter(phonenumber=phonenumber).exists():
+                return Response({'detail': 'Phone number already exists'})
+            
+            user=User.objects.create_user(
+                full_name=full_name,
+                phonenumber=phonenumber,
+                username=username,
+                email=email,
+                password=password,
+                user_type=user_type
+            )
+            
+            otp = get_random_string(length=6,allowed_chars='0123456789')
+            user.otp = otp
+            user.save()
+            try:
+                send_mail(
+                    'OTP Verification',
+                    f'Your OTP is {otp}',
+                    'bdevil149@gmail.com',
+                    ['ratish.shakya149@gmail.com',user.email],
+                    fail_silently=False,
                 )
-        else:
-            return Response({'detail': 'password and confirm password do not match'})
+            except:
+                return Response({'detail': 'Failed to send OTP'})
+            
+            if user.user_type == 'VENDOR':
+                VendorProfile.objects.create(user=user)
+            elif user.user_type == 'USER':
+                UserProfile.objects.create(user=user)
 
-        otp = get_random_string(length=6,allowed_chars='0123456789')
-        user.otp = otp
-        user.save()
-        
-        send_mail(
-            'OTP Verification',
-            f'Your OTP is {otp}',
-            'bdevil149@gmail.com',
-            ['ratish.shakya149@gmail.com',user.email],
-            fail_silently=False,
-        )
-        if user.user_type == 'VENDOR':
-            VendorProfile.objects.create(user=user)
-        elif user.user_type == 'USER':
-            UserProfile.objects.create(user=user)
-
-        token=get_tokens_for_user(user)
-        return Response(
-                    {
-                    "token":token
-                })
+            token=get_tokens_for_user(user)
+            return Response(
+                        {
+                        "token":token
+                    })
+        except Exception as e:
+            return Response({'detail': str(e)})
 
 class VerifyOTPView(GenericAPIView):
     serializer_class = VerifyOTPSerializer
    
     def post(self, request, *args, **kwargs):
+        
         otp = request.data.get('otp')
         user=request.user
         try:
@@ -92,21 +104,27 @@ class LoginView(GenericAPIView):
     def post(self, request, *args, **kwargs):
         username=request.data.get('username')
         password=request.data.get('password')
-
-        if '@' in username:
-            username=username.split('@')[0]
-
-        user = authenticate(username=username, password=password)
+        try:
+            if '@' in username:
+                user=User.objects.get(email=username)
+                # username=username.split('@')[0]
+            elif username.isdigit():
+                user=User.objects.get(phonenumber=username)
+            else:
+                user=User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'Message':'User does not exist'})
+        
+        user = authenticate(username=user.username, password=password)
 
         if user is not None:
             if user.is_verified:
                 token=get_tokens_for_user(user)
                 return Response(
                     {
-                    "token":token,
-                    'Message':'Login Successful!'
-                })
-                
+                    'Message':'Login Successful!',
+                    "token":token                    
+                })    
             else:
                 return Response({'Message':'Email not verified'})
         else:
