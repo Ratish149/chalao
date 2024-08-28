@@ -76,3 +76,5 @@ class VendorProfileSerializer(serializers.ModelSerializer):
             'registered_year',
         ]
 
+class KYCVerificationSerializer(serializers.Serializer):
+    user_id=serializers.IntegerField()

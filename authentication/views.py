@@ -9,7 +9,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer,VerifyOTPSerializer,PasswordResetSerializer,PasswordResetConfirmSerializer
+from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer,VerifyOTPSerializer,PasswordResetSerializer,PasswordResetConfirmSerializer,KYCVerificationSerializer
 from django.contrib.auth import authenticate
 from .models import User,UserProfile,VendorProfile
 
@@ -20,7 +20,6 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
-# Create your views here.
 
 class UserSignupView(ListCreateAPIView):
     queryset = User.objects.all()
@@ -296,15 +295,12 @@ class VendorProfileView(RetrieveUpdateAPIView):
             vendor_profile = VendorProfile.objects.get(user=self.request.user)
             data = request.data
             
-            # Update VendorProfile fields
             vendor_profile.pan_no = data.get('pan_no', vendor_profile.pan_no)
             vendor_profile.registered_year = data.get('registered_year', vendor_profile.registered_year)
             
-            # Handle file upload for VendorProfile
             if 'company_registration' in request.FILES:
                 vendor_profile.company_registration = request.FILES['company_registration']
             
-            # Update User fields
             user = vendor_profile.user
             user_fields = ['full_name', 'phonenumber', 'address', 'dateofbirth', 'gender', 
                            'occupation', 'citizenship_number', 'nid_number', 'issued_date', 'issued_district']
@@ -335,13 +331,13 @@ class VendorProfileView(RetrieveUpdateAPIView):
         except Exception as e:
             return Response({'error': 'An unexpected error occurred'}, status=500)
         
-class KYCVerificationView(RetrieveUpdateAPIView):
-    def patch(self, request, *args, **kwargs):
+class KYCVerificationView(GenericAPIView):
+    serializer_class = KYCVerificationSerializer
+    def post(self, request, *args, **kwargs):
         user_id=request.data.get('user_id')
         if not user_id:
             return Response({'detail': 'User ID is required'})
-        
-        
+               
         user=User.objects.get(id=user_id)
         if not user.kyc_verified:
             user.kyc_verified=True
