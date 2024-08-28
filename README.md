@@ -75,5 +75,13 @@ You can access the API documentation by navigating to the following URL in your 
 http://127.0.0.1:8000/redoc/
 ```
 
+### 8. Access API 
+
+You can access the API by navigating to the following URL in your web browser:
+
+```bash
+http://127.0.0.1:8000/swagger/
+```
+
 
 
