@@ -105,16 +105,16 @@ class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
-        username=request.data.get('username')
+        login_field=request.data.get('c')
         password=request.data.get('password')
         try:
-            if '@' in username:
-                user=User.objects.get(email=username)
+            if '@' in login_field:
+                user=User.objects.get(email=login_field)
                 # username=username.split('@')[0]
-            elif username.isdigit():
-                user=User.objects.get(phonenumber=username)
+            elif login_field.isdigit():
+                user=User.objects.get(phonenumber=login_field)
             else:
-                user=User.objects.get(username=username)
+                user=User.objects.get(username=login_field)
         except User.DoesNotExist:
             return Response({'Message':'User does not exist'})
         
@@ -334,3 +334,18 @@ class VendorProfileView(RetrieveUpdateAPIView):
             return Response({'error': str(e)}, status=400)
         except Exception as e:
             return Response({'error': 'An unexpected error occurred'}, status=500)
+        
+class KYCVerificationView(RetrieveUpdateAPIView):
+    def patch(self, request, *args, **kwargs):
+        user_id=request.data.get('user_id')
+        if not user_id:
+            return Response({'detail': 'User ID is required'})
+        
+        
+        user=User.objects.get(id=user_id)
+        if not user.kyc_verified:
+            user.kyc_verified=True
+            user.save()
+            return Response({'detail': 'KYC verification successful'})
+        else:
+            return Response({'detail': 'KYC already verified'})

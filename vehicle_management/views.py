@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 from .models import Vehicle,Price,Booking,BookingImages,ExtendBooking,CancelBooking
 from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,PriceSerializer,ExtendBookingSerializer
+
 # Create your views here.
 
 class VehicleListCreateView(ListCreateAPIView):
