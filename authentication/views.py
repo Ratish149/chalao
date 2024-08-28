@@ -104,7 +104,7 @@ class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
-        login_field=request.data.get('c')
+        login_field=request.data.get('login_field')
         password=request.data.get('password')
         try:
             if '@' in login_field:
