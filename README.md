@@ -1,4 +1,4 @@
-# ChALAO
+# CHALAO
 
 Chalao - Bike Rental Platform
 
