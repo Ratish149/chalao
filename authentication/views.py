@@ -310,7 +310,6 @@ class VendorProfileView(RetrieveUpdateAPIView):
                 if key in data:
                     setattr(user, field, data[key])
             
-            # Handle file uploads for User
             if 'user[citizenship_front]' in request.FILES:
                 user.citizenship_front = request.FILES['user[citizenship_front]']
             if 'user[citizenship_back]' in request.FILES:
