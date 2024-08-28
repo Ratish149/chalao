@@ -54,6 +54,7 @@ class Vehicle(models.Model):
     theft_assurance=models.CharField(max_length=100,choices=THEFT_ASSURANCE)
     distance_travelled=models.IntegerField(blank=True,null=True)
     last_service_date=models.DateField(blank=True,null=True)
+    date_of_upload = models.DateField(auto_now_add=True)
     power = models.IntegerField(blank=True,null=True)
     duration=models.CharField(max_length=100,choices=DURATION)
     discount = models.IntegerField(blank=True,null=True)
@@ -61,6 +62,11 @@ class Vehicle(models.Model):
 
     def __str__(self):
         return self.vehicle_name
+    
+    class Meta:
+        ordering = [
+            '-date_of_upload'
+            ]
     
 class Booking(models.Model):    
     PAYMENT_METHOD={
