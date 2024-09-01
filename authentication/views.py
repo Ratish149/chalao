@@ -83,7 +83,6 @@ class UserSignupView(ListCreateAPIView):
 
 class VerifyOTPView(GenericAPIView):
     serializer_class = VerifyOTPSerializer
-   
     def post(self, request, *args, **kwargs):
         
         otp = request.data.get('otp')
