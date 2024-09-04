@@ -21,6 +21,7 @@ class Vehicle(models.Model):
         'BIKE':'BIKE',
         'SCOOTER':'SCOOTER',
         'ELETRIC':'ELETRIC',
+        'CAB':'CAB'
     }
     DURATION={
         'DAY':'DAY',
