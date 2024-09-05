@@ -36,6 +36,9 @@ class Vehicle(models.Model):
     }
     CATEGORY={
         'BUDGET':'BUDGET',
+        'PREMIUM':'PREMIUM',
+        'ELETRIC':'ELETRIC',
+
     }
     CONDITION={
         '1':'1',
