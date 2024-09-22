@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'vehicle_management',
     'careers',
+    'app_reviews',
     'drf_yasg',
     'corsheaders',
     'tinymce',
