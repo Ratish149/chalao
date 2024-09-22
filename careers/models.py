@@ -8,6 +8,7 @@ class Job(models.Model):
         ('Onsite','Onsite'),
         ('Remote','Remote'),
     }
+
     job_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
     job_title = models.CharField(max_length=100)
     job_description = models.TextField()
@@ -16,6 +17,7 @@ class Job(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     remote_type=models.CharField(max_length=100,choices=REMOTE_CHOICES)
+    salary=models.CharField(max_length=100,default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

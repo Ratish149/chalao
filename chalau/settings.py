@@ -159,9 +159,9 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "mail.privateemail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "info@chalao.rentals"
+EMAIL_HOST_USER = "careers@chalao.rentals"
 EMAIL_HOST_PASSWORD = "F!R0J@Ch@l@uTwentyTwentyFour"
-DEFAULT_FROM_EMAIL = "info@chalao.rentals"
+DEFAULT_FROM_EMAIL = "careers@chalao.rentals"
 
 UNFOLD = {
     "SITE_HEADER": _("Chalao Admin"),
