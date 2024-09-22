@@ -123,7 +123,7 @@ class CancelBooking(models.Model):
     def __str__(self):
         return f'{self.booking.user.username} - {self.booking.vehicle.vehicle_name} - {self.remarks}'
     
-class vehicleReview(models.Model):
+class VehicleReview(models.Model):
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE,related_name='reviews')
     user = models.ForeignKey('authentication.User', on_delete=models.CASCADE, related_name='reviews')
     rating = models.IntegerField()
