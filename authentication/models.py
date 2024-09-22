@@ -49,9 +49,9 @@ class UserProfile(models.Model):
 class VendorProfile(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
     pan_no=models.IntegerField(blank=True,null=True)
-    pan_no_image=models.IntegerField(blank=True,null=True)
+    pan_no_image=models.ImageField(upload_to='pan_no',blank=True,null=True)
     vat_no=models.IntegerField(blank=True,null=True)
-    vat_no_image=models.IntegerField(blank=True,null=True)
+    vat_no_image=models.ImageField(upload_to='vat_no',blank=True,null=True)
     company_registration=models.ImageField(upload_to='company_registration',blank=True,null=True)
     registered_year=models.IntegerField(blank=True,null=True)
 

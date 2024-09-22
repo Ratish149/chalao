@@ -233,11 +233,21 @@ class UserProfileView(RetrieveUpdateAPIView):
             user_profile.issued_district = data.get('issued_district', user_profile.issued_district)
             
             # Handle file uploads for UserProfile
+            if 'user_image_top' in request.FILES:
+                user_profile.user_image_top = request.FILES['user_image_top']   
+            if 'user_image_bottom' in request.FILES:
+                user_profile.user_image_bottom = request.FILES['user_image_bottom']
+            if 'user_image_left' in request.FILES:
+                user_profile.user_image_left = request.FILES['user_image_left']
+            if 'user_image_right' in request.FILES:
+                user_profile.user_image_right = request.FILES['user_image_right']
+
             if 'driving_license_front' in request.FILES:
                 user_profile.driving_license_front = request.FILES['driving_license_front']
             if 'driving_license_back' in request.FILES:
                 user_profile.driving_license_back = request.FILES['driving_license_back']
             
+
             # Update User fields
             user = user_profile.user
             user_fields = ['full_name', 'phonenumber', 'address', 'dateofbirth', 'gender', 
@@ -294,11 +304,17 @@ class VendorProfileView(RetrieveUpdateAPIView):
             vendor_profile = VendorProfile.objects.get(user=self.request.user)
             data = request.data
             
+            
             vendor_profile.pan_no = data.get('pan_no', vendor_profile.pan_no)
+            vendor_profile.vat_no = data.get('vat_no', vendor_profile.vat_no)
             vendor_profile.registered_year = data.get('registered_year', vendor_profile.registered_year)
             
             if 'company_registration' in request.FILES:
                 vendor_profile.company_registration = request.FILES['company_registration']
+            if 'pan_no_image' in request.FILES:
+                vendor_profile.pan_no_image = request.FILES['pan_no_image']
+            if 'vat_no_image' in request.FILES:
+                vendor_profile.vat_no_image = request.FILES['vat_no_image']
             
             user = vendor_profile.user
             user_fields = ['full_name', 'phonenumber', 'address', 'dateofbirth', 'gender', 
