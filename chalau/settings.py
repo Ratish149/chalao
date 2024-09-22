@@ -1,7 +1,8 @@
 
 from pathlib import Path
-# from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 import datetime
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -141,7 +142,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-import os
 STATIC_ROOT=os.path.join(BASE_DIR,'staticfiles')
 
 MEDIA_ROOT=BASE_DIR/'media'
@@ -163,16 +163,16 @@ EMAIL_HOST_USER = "info@chalao.rentals"
 EMAIL_HOST_PASSWORD = "F!R0J@Ch@l@uTwentyTwentyFour"
 DEFAULT_FROM_EMAIL = "info@chalao.rentals"
 
-# UNFOLD = {
-#     "SITE_HEADER": _("Chalao Admin"),
-#     "SITE_TITLE": _("Chalao Admin"),
-#     "THEME": "light",
-#     "SIDEBAR": {
-#         "show_search": True,
-#         "show_all_applications": True,
-#         "navigation_expanded": True,
-#     },
-# }
+UNFOLD = {
+    "SITE_HEADER": _("Chalao Admin"),
+    "SITE_TITLE": _("Chalao Admin"),
+    # "THEME": "light",
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation_expanded": True,
+    },
+}
 
 TINYMCE_DEFAULT_CONFIG = {
     "height" : "780",
