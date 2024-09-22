@@ -121,5 +121,5 @@ class CancelBooking(models.Model):
     remarks = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.booking.user.username + ' - ' + self.booking.vehicle.vehicle_name+ ' - ' + self.remarks
+        return f'{self.booking.user.username} - {self.booking.vehicle.vehicle_name} - {self.remarks}'
     

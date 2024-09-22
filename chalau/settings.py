@@ -1,5 +1,6 @@
 
 from pathlib import Path
+# from django.utils.translation import gettext_lazy as _
 import datetime
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,8 +33,10 @@ INSTALLED_APPS = [
     'authentication',
     'rest_framework',
     'vehicle_management',
+    'careers',
     'drf_yasg',
     'corsheaders',
+    'tinymce',
 ]
 
 MIDDLEWARE = [
@@ -108,6 +111,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=60),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=60),
 }
+
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Bearer': {
@@ -151,9 +155,60 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "mail.privateemail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'bdevil149@gmail.com'
-EMAIL_HOST_PASSWORD = 'nfkn jlen xdih fwqb'
+EMAIL_HOST_USER = "info@chalao.rentals"
+EMAIL_HOST_PASSWORD = "F!R0J@Ch@l@uTwentyTwentyFour"
+DEFAULT_FROM_EMAIL = "info@chalao.rentals"
+
+# UNFOLD = {
+#     "SITE_HEADER": _("Chalao Admin"),
+#     "SITE_TITLE": _("Chalao Admin"),
+#     "THEME": "light",
+#     "SIDEBAR": {
+#         "show_search": True,
+#         "show_all_applications": True,
+#         "navigation_expanded": True,
+#     },
+# }
+
+TINYMCE_DEFAULT_CONFIG = {
+    "height" : "780",
+    "width" : "780",
+    "entity_encoding": "raw",
+    "menubar": "file edit view insert format tools table help",
+    "plugins": 'print preview paste importcss searchreplace autolink autosave save code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap emoticons quickbars',
+    "toolbar": "fullscreen preview | undo redo | bold italic forecolor backcolor | formatselect | image link | "
+    "alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | fontsizeselect "
+    "emoticons | ",
+    "custom_undo_redo_levels": 50,
+    "quickbars_insert_toolbar": False,
+    "file_picker_callback": """function (cb, value, meta) {
+        var input = document.createElement("input");
+        input.setAttribute("type", "file");
+        if (meta.filetype == "image") {
+            input.setAttribute("accept", "image/*");
+        }
+        if (meta.filetype == "media") {
+            input.setAttribute("accept", "video/*");
+        }
+
+        input.onchange = function () {
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.onload = function () {
+                var id = "blobid" + (new Date()).getTime();
+                var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                var base64 = reader.result.split(",")[1];
+                var blobInfo = blobCache.create(id, file, base64);
+                blobCache.add(blobInfo);
+                cb(blobInfo.blobUri(), { title: file.name });
+            };
+            reader.readAsDataURL(file);
+        };
+        input.click();
+    }""",
+    "content_style": "body { font-family:Roboto,Helvetica,Arial,sans-serif; font-size:14px }",
+}

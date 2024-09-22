@@ -57,6 +57,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = [
             'user',
+            'user_image_top',
+            'user_image_bottom',
+            'user_image_left',
+            'user_image_right',
             'license_number',
             'expiry_date',
             'issued_district',
@@ -71,6 +75,9 @@ class VendorProfileSerializer(serializers.ModelSerializer):
         fields = [
             'user',
             'pan_no',
+            'pan_no_image',
+            'vat_no',
+            'vat_no_image',
             'company_registration',
             'registered_year',
         ]

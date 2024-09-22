@@ -31,6 +31,12 @@ class User(AbstractUser):
 
 class UserProfile(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
+
+    user_image_top=models.ImageField(upload_to='profile',blank=True,null=True)
+    user_image_bottom=models.ImageField(upload_to='profile',blank=True,null=True)
+    user_image_left=models.ImageField(upload_to='profile',blank=True,null=True)
+    user_image_right=models.ImageField(upload_to='profile',blank=True,null=True)
+   
     license_number=models.IntegerField(blank=True,null=True)
     expiry_date=models.DateField(blank=True,null=True)
     issued_district=models.CharField(max_length=100,blank=True,null=True)
@@ -43,6 +49,9 @@ class UserProfile(models.Model):
 class VendorProfile(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
     pan_no=models.IntegerField(blank=True,null=True)
+    pan_no_image=models.IntegerField(blank=True,null=True)
+    vat_no=models.IntegerField(blank=True,null=True)
+    vat_no_image=models.IntegerField(blank=True,null=True)
     company_registration=models.ImageField(upload_to='company_registration',blank=True,null=True)
     registered_year=models.IntegerField(blank=True,null=True)
 
