@@ -167,7 +167,7 @@ DEFAULT_FROM_EMAIL = "careers@chalao.rentals"
 UNFOLD = {
     "SITE_HEADER": _("Chalao Admin"),
     "SITE_TITLE": _("Chalao Admin"),
-    # "THEME": "light",
+    "THEME": "light",
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": True,

@@ -55,7 +55,7 @@ class JobListCreateView(generics.ListCreateAPIView):
         )
         job.save()
         serializer = self.get_serializer(job)
-        return Response({'Message': 'Booking Extended Successfully','data':serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({'Message': 'Job Created Successfully','data':serializer.data}, status=status.HTTP_201_CREATED)
 
 class JobRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Job.objects.all()
