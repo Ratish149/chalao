@@ -7,7 +7,6 @@ from .serializers import JobSerializer,JobApplicationSerializer
 from django.core.mail import send_mail
 from django.conf import settings
 
-
 # Create your views here.
 
 class JobListCreateView(generics.ListCreateAPIView):
@@ -36,25 +35,43 @@ class JobListCreateView(generics.ListCreateAPIView):
         return Response(serializer.data)
     
     def create(self, request, *args, **kwargs):
-        job_title=request.data.get('job_title')
-        job_description=request.data.get('job_description')
-        job_location=request.data.get('job_location')
-        open_positions=request.data.get('open_positions')
-        start_date=request.data.get('start_date')
-        end_date=request.data.get('end_date')
-        remote_type=request.data.get('remote_type')
-        job = Job.objects.create(
-            job_title=job_title,
-            job_description=job_description,
-            job_location=job_location,
-            open_positions=open_positions,
-            start_date=start_date,
-            end_date=end_date,
-            remote_type=remote_type
-        )
-        job.save()
-        serializer = self.get_serializer(job)
-        return Response({'Message': 'Job Created Successfully','data':serializer.data}, status=status.HTTP_201_CREATED)
+        job_title = request.data.get('job_title')
+        job_description = request.data.get('job_description')
+        job_location = request.data.get('job_location')
+        open_positions = request.data.get('open_positions')
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        remote_type = request.data.get('remote_type')
+        salary=request.data.get('salary')
+        try:
+            job = Job.objects.create(
+                job_title=job_title,
+                job_description=job_description,
+                job_location=job_location,
+                open_positions=open_positions,
+                start_date=start_date,
+                end_date=end_date,
+                remote_type=remote_type,
+                salary=salary
+            )
+            job.save()
+            
+            # Add this line to check if the job was actually saved
+            saved_job = Job.objects.get(pk=job.pk)
+            
+            serializer = self.get_serializer(saved_job)
+            return Response({
+                'Message': 'Job Created Successfully',
+                'data': serializer.data,
+                'job_id': saved_job.job_id  # Add this line to return the job_id
+            }, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            # Add error logging
+            print(f"Error creating job: {str(e)}")
+            return Response({
+                'Message': 'Error creating job',
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class JobRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Job.objects.all()
