@@ -13,7 +13,8 @@ class BlogListCreateView(ListCreateAPIView):
     # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        blogs = Blog.objects.filter(author=request.user)
+        blogs = Blog.objects.all()
+        # blogs = Blog.objects.filter(author=request.user)
         serializer = BlogSerializer(blogs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
