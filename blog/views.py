@@ -32,7 +32,7 @@ class BlogRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Blog.objects.filter(author=self.request.user)
+        return Blog.objects.all()
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
