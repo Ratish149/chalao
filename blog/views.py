@@ -22,8 +22,9 @@ class BlogListCreateView(ListCreateAPIView):
         data = request.data
         title = data.get('title')
         content = data.get('content')
+        image = data.get('image')
         author = request.user
-        blog = Blog.objects.create(title=title, content=content, author=author)
+        blog = Blog.objects.create(title=title, content=content, image=image, author=author)
         return Response(BlogSerializer(blog).data, status=status.HTTP_201_CREATED)
 
 class BlogRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
@@ -44,9 +45,10 @@ class BlogRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         data = request.data
         title = data.get('title',instance.title)
         content = data.get('content',instance.content)
-        
+        image = data.get('image',instance.image)
         instance.title = title
         instance.content = content
+        instance.image = image
         instance.save()
         
         return Response(BlogSerializer(instance).data, status=status.HTTP_200_OK)
