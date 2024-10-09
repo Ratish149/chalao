@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.conf import settings
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.generics import ListCreateAPIView,GenericAPIView,RetrieveUpdateAPIView
 from rest_framework.response import Response
@@ -58,10 +59,11 @@ class UserSignupView(ListCreateAPIView):
             user.otp = otp
             user.save()
             try:
+                  # Import settings
                 send_mail(
                     'OTP Verification',
                     f'Your OTP is {otp}',
-                    'bdevil149@gmail.com',
+                    settings.DEFAULT_FROM_EMAIL,  # Use default from email
                     ['ratish.shakya149@gmail.com',user.email],
                     fail_silently=False,
                 )

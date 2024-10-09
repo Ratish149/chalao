@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'vehicle_management',
     'careers',
     'blog',
+    'contact',
     'app_reviews',
     'drf_yasg',
     'corsheaders',
