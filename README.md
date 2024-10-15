@@ -28,7 +28,7 @@ cd chalau
 
 ### 2. Create a Virtual Environment
 
-Create a virtual environment to isolate the project dependencies:
+Create a virtual environment outside the Clone directory to isolate the project dependencies:
 
 ```bash
 python -m venv venv
@@ -48,6 +48,7 @@ On MacOS: source venv/bin/activate
 Install the required packages using the requirements.txt file:
 
 ```bash
+cd [project-folder-name]
 pip install -r requirements.txt
 ```
 
