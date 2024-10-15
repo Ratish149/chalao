@@ -56,8 +56,16 @@ class Vehicle(models.Model):
     bike_condition=models.CharField(max_length=100,choices=CONDITION,blank=True,null=True)
     category=models.CharField(max_length=100,choices=CATEGORY,blank=True,null=True)
     theft_assurance=models.CharField(max_length=100,choices=THEFT_ASSURANCE)
+    
+    chassis_number=models.IntegerField(blank=True,null=True)
+    registration_number=models.IntegerField(blank=True,null=True)
+    insurance_number=models.IntegerField(blank=True,null=True)
+    engine_number=models.IntegerField(blank=True,null=True)
+
     distance_travelled=models.IntegerField(blank=True,null=True)
     last_service_date=models.DateField(blank=True,null=True)
+    next_service_date=models.DateField(blank=True,null=True)
+    next_service_distance=models.IntegerField(blank=True,null=True)
     date_of_upload = models.DateField(auto_now_add=True)
     power = models.IntegerField(blank=True,null=True)
     duration=models.CharField(max_length=100,choices=DURATION)

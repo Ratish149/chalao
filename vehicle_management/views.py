@@ -16,9 +16,8 @@ class VehicleListCreateView(ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get_queryset(self):
-        
-        if self.request.user:
-            user = self.request.user
+        user = self.request.user
+        if user.is_authenticated:  # Check if the user is authenticated
             if user.user_type == 'VENDOR':
                 return Vehicle.objects.filter(vendor=user)
         return Vehicle.objects.all()
@@ -83,11 +82,18 @@ class VehicleListCreateView(ListCreateAPIView):
         vehicle_type = request.data.get('vehicle_type')
         thumbnail_image=request.data.get('thumbnail_image')
 
+        chassis_number = request.data.get('chassis_number')
+        registration_number = request.data.get('registration_number')
+        insurance_number = request.data.get('insurance_number')
+        engine_number = request.data.get('engine_number')
+
         bike_condition = request.data.get('bike_condition')
         category = request.data.get('category')
         theft_assurance = request.data.get('theft_assurance')
         distance_travelled = request.data.get('distance_travelled')
         last_service_date = request.data.get('last_service_date')
+        next_service_date = request.data.get('next_service_date')
+        next_service_distance = request.data.get('next_service_distance')
         power = request.data.get('power')
         duration = request.data.get('duration')
         discount = request.data.get('discount')
@@ -97,11 +103,17 @@ class VehicleListCreateView(ListCreateAPIView):
             vehicle_name=vehicle_name,
             vehicle_type=vehicle_type,
             thumbnail_image=thumbnail_image,
+            chassis_number=chassis_number,
+            registration_number=registration_number,
+            insurance_number=insurance_number,
+            engine_number=engine_number,
             bike_condition=bike_condition,
             category=category,
             theft_assurance=theft_assurance,
             distance_travelled=distance_travelled,
             last_service_date=last_service_date,
+            next_service_date=next_service_date,
+            next_service_distance=next_service_distance,
             power=power,
             duration=duration,
             discount=discount
