@@ -64,7 +64,7 @@ class UserSignupView(ListCreateAPIView):
                     'OTP Verification',
                     f'Your OTP is {otp}',
                     settings.DEFAULT_FROM_EMAIL,  # Use default from email
-                    ['ratish.shakya149@gmail.com',user.email],
+                    [user.email],
                     fail_silently=False,
                 )
             except:
@@ -177,7 +177,7 @@ class PasswordResetView(GenericAPIView):
             send_mail(
                 subject,
                 message,
-                'bdevil149@gmail.com',
+                settings.DEFAULT_FROM_EMAIL,
                 ['ratish.shakya149@gmail.com',email],
                 fail_silently=False,
             )
