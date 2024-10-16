@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('careers', '0004_job_remote_type'),
+        ('careers', '0003_remove_job_remote_type'),
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.AddField(
             model_name='job',
             name='remote_type',
-            field=models.CharField(choices=[('Hybrid', 'Hybrid'), ('Remote', 'Remote'), ('Onsite', 'Onsite')], default='Onsite', max_length=50),
+            field=models.CharField(choices=[('Onsite', 'Onsite'), ('Remote', 'Remote'), ('Hybrid', 'Hybrid')], default='Onsite', max_length=50),
         ),
     ]

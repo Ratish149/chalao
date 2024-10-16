@@ -159,12 +159,12 @@ CORS_ORIGIN_ALLOW_ALL = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "mail.privateemail.com"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "careers@chalao.rentals"
-EMAIL_HOST_PASSWORD = "F!R0J@Ch@l@uTwentyTwentyFour"
-DEFAULT_FROM_EMAIL = "careers@chalao.rentals"
+EMAIL_HOST_USER = "chalaorentals@gmail.com"
+EMAIL_HOST_PASSWORD = "cokciwtendidhzgf"
+DEFAULT_FROM_EMAIL = "chalaorentals@gmail.com"
 
 UNFOLD = {
     "SITE_HEADER": _("Chalao Admin"),
