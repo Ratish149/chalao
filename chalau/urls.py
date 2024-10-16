@@ -41,13 +41,12 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('authentication.urls')),
-    path('api/vehicle/', include('vehicle_management.urls')),
+    path('api/', include('vehicle_management.urls')),
     path('api/careers/', include('careers.urls')),
     path('api/app-reviews/', include('app_reviews.urls')),
-    path('api/blog/', include('blog.urls')),
-    path('api/contact/', include('contact.urls')),
+    path('api/', include('blog.urls')),
+    path('api/', include('contact.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
