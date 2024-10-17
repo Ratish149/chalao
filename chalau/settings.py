@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'careers',
     'blog',
     'contact',
+    'advertisement',
     'app_reviews',
     'drf_yasg',
     'corsheaders',
