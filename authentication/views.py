@@ -41,9 +41,9 @@ class UserSignupView(ListCreateAPIView):
             
             if User.objects.filter(username=username).exists():
                 return Response({'detail': 'Username already exists'})
-            elif User.objects.filter(email=email).exists():
+            if User.objects.filter(email=email).exists():
                 return Response({'detail': 'Email already exists'})
-            elif User.objects.filter(phonenumber=phonenumber).exists():
+            if phonenumber and User.objects.filter(phonenumber=phonenumber).exists():
                 return Response({'detail': 'Phone number already exists'})
             
             user=User.objects.create_user(
@@ -265,6 +265,8 @@ class UserProfileView(RetrieveUpdateAPIView):
                 user.citizenship_front = request.FILES['user[citizenship_front]']
             if 'user[citizenship_back]' in request.FILES:
                 user.citizenship_back = request.FILES['user[citizenship_back]']
+            if 'user[profile_picture]' in request.FILES:
+                user.profile_picture = request.FILES['user[profile_picture]']
             
             user_profile.save()
             user.save()
@@ -331,6 +333,8 @@ class VendorProfileView(RetrieveUpdateAPIView):
                 user.citizenship_front = request.FILES['user[citizenship_front]']
             if 'user[citizenship_back]' in request.FILES:
                 user.citizenship_back = request.FILES['user[citizenship_back]']
+            if 'user[profile_picture]' in request.FILES['user[profile_picture]']:
+                user.profile_picture = request.FILES['user[profile_picture]']
             
             vendor_profile.save()
             user.save()
