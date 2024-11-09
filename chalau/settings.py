@@ -14,15 +14,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-h-+(5!1qyxpk=^s(^p_4_y-(q=uoy$jnqp_)r1p(@j(#4t!806'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*','chalao.pythonanywhere.com']
 
 # Application definition
 
 INSTALLED_APPS = [
-    
-    "unfold", 
+
+    "unfold",
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -104,11 +104,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
-   
+
 }
 
 SIMPLE_JWT = {
