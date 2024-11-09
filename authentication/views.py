@@ -13,6 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer,VerifyOTPSerializer,PasswordResetSerializer,PasswordResetConfirmSerializer,KYCVerificationSerializer
 from django.contrib.auth import authenticate
 from .models import User,UserProfile,VendorProfile
+from rest_framework.permissions import IsAuthenticated  # Import permission
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -365,3 +366,11 @@ class KYCVerificationView(GenericAPIView):
             return Response({'detail': 'KYC verification successful'})
         else:
             return Response({'detail': 'KYC already verified'})
+
+class DeleteAccountView(GenericAPIView):
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
+
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        user.delete()  # Delete the user account
+        return Response({'detail': 'Account deleted successfully'}, status=204)  # Return success response
