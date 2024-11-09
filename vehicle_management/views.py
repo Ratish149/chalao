@@ -279,6 +279,7 @@ class ExtendBookingView(ListCreateAPIView):
         end_date = request.data.get('end_date')
         price = request.data.get('price')
         remarks = request.data.get('remarks', '')
+        booking.end_date = end_date
 
         extend_booking = ExtendBooking.objects.create(
             booking=booking,
@@ -287,6 +288,7 @@ class ExtendBookingView(ListCreateAPIView):
             price=price,
             remarks=remarks
         )
+        booking.save()
         extend_booking.save()
 
         return Response({'Data': ExtendBookingSerializer(extend_booking).data,'Message': 'Booking Extended Successfully'})
