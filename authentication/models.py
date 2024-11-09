@@ -9,12 +9,14 @@ class User(AbstractUser):
         'USER':'USER',
     }
     user_type=models.CharField(max_length=10,choices=USER_TYPE)
+    profile_picture=models.ImageField(upload_to='profile picture',blank=True,null=True)
     full_name=models.CharField(max_length=100,blank=True,null=True)
-    phonenumber=models.IntegerField(blank=True,null=True)
+    phonenumber=models.CharField(max_length=15,blank=True,null=True)
     address=models.CharField(max_length=100,blank=True,null=True)
     dateofbirth=models.DateField(blank=True,null=True)
     gender=models.CharField(max_length=10,blank=True,null=True)
     occupation=models.CharField(max_length=100,blank=True,null=True)
+
 
     citizenship_number=models.IntegerField(blank=True,null=True)
     nid_number=models.IntegerField(blank=True,null=True)
@@ -48,6 +50,7 @@ class UserProfile(models.Model):
 
 class VendorProfile(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
+    city=models.CharField(max_length=100,blank=True,null=True)
     pan_no=models.IntegerField(blank=True,null=True)
     pan_no_image=models.ImageField(upload_to='pan_no',blank=True,null=True)
     vat_no=models.IntegerField(blank=True,null=True)

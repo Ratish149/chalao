@@ -17,9 +17,17 @@ class VehicleListCreateView(ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_authenticated:  # Check if the user is authenticated
-            if user.user_type == 'VENDOR':
-                return Vehicle.objects.filter(vendor=user)
+        user_city = self.request.query_params.get('user_city', None)  # Get user city from query params
+        
+        # If user is authenticated and is a vendor, return their vehicles
+        if user.is_authenticated and user.user_type == 'VENDOR':
+            return Vehicle.objects.filter(vendor=user)
+        
+        # If user_city is provided, filter vehicles based on vendor's city
+        if user_city:
+            return Vehicle.objects.filter(vendor__vendorprofile__city=user_city)  # Assuming vendor has a related VendorProfile
+        
+        # If no user_city is provided, return all vehicles
         return Vehicle.objects.all()
 
     def get(self, request, *args, **kwargs):
@@ -267,7 +275,6 @@ class ExtendBookingView(ListCreateAPIView):
         booking=Booking.objects.get(id=booking_id, user=self.request.user)
         if request.user != booking.user:
             return Response({'Message': 'Permission Denied'})
-
         start_date = request.data.get('start_date')
         end_date = request.data.get('end_date')
         price = request.data.get('price')
