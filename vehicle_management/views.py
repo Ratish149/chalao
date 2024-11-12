@@ -142,6 +142,12 @@ class VehicleEditView(RetrieveUpdateDestroyAPIView):
     def patch(self, request, *args, **kwargs):
         try:
             vehicle = self.get_object()
+            vendor = request.user
+            
+            # Check if the vendor is the owner of the vehicle
+            if vehicle.vendor != vendor:
+                return Response({'error': 'Permission Denied: You are not the owner of this vehicle'}, status=403)
+
             data = request.data
             print(data)
             
@@ -165,6 +171,7 @@ class VehicleEditView(RetrieveUpdateDestroyAPIView):
             vehicle.duration = data.get('duration', vehicle.duration)
             vehicle.discount = data.get('discount', vehicle.discount)
             vehicle.available = data.get('available', vehicle.available)
+            vehicle.vendor=vendor
 
             # Handle file uploads for Vehicle
             if 'thumbnail_image' in request.FILES:
