@@ -47,6 +47,7 @@ class VehicleListCreateView(ListCreateAPIView):
         duration = request.query_params.get('duration', None)
         power_min = request.query_params.get('power_min', None)
         power_max = request.query_params.get('power_max', None)
+        fuel_type = request.query_params.get('fuel_type', None) 
 
         if vehicle_name:
             filters &= Q(vehicle_name__icontains=vehicle_name)
@@ -75,6 +76,9 @@ class VehicleListCreateView(ListCreateAPIView):
             filters &= Q(power__gte=power_min)
         elif power_max is not None:
             filters &= Q(power__lte=power_max)
+
+        if fuel_type:  # Add filter for fuel_type
+            filters &= Q(fuel_type__icontains=fuel_type)
 
         filtered_queryset = queryset.filter(filters)
 
