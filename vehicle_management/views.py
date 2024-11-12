@@ -9,6 +9,7 @@ from rest_framework import status
 from .models import Vehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview
 from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,ExtendBookingSerializer,VehicleReviewSerializer
 from rest_framework.exceptions import ValidationError
+import json
 
 # Create your views here.
 
@@ -107,13 +108,14 @@ class VehicleListCreateView(ListCreateAPIView):
         duration = request.data.get('duration')
         discount = request.data.get('discount')
         price = request.data.get('price', {})
+        price_data = json.loads(price)
         
         vehicle=Vehicle.objects.create(
             vendor=vendor,  
             vehicle_name=vehicle_name,
             vehicle_type=vehicle_type,
             thumbnail_image=thumbnail_image,
-            price=price,
+            price=price_data,
             chassis_number=chassis_number,
             registration_number=registration_number,
             insurance_number=insurance_number,
@@ -162,7 +164,7 @@ class VehicleEditView(RetrieveUpdateDestroyAPIView):
             vehicle.registration_number = data.get('registration_number', vehicle.registration_number)
             vehicle.insurance_number = data.get('insurance_number', vehicle.insurance_number)
             vehicle.engine_number = data.get('engine_number', vehicle.engine_number)
-            vehicle.price = data.get('price', vehicle.price)
+            vehicle.price = json.loads(data.get('price', vehicle.price)) 
             vehicle.distance_travelled = data.get('distance_travelled', vehicle.distance_travelled)
             vehicle.last_service_date = data.get('last_service_date', vehicle.last_service_date)
             vehicle.next_service_date = data.get('next_service_date', vehicle.next_service_date)
