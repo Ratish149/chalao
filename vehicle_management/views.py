@@ -15,7 +15,7 @@ import json
 
 class VehicleListCreateView(ListCreateAPIView):
     serializer_class = VehicleSerializer
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser,JSONParser)
 
     def get_queryset(self):
         user = self.request.user
@@ -237,7 +237,7 @@ class BookingListCreateView(ListCreateAPIView):
 class BookingImageUploadView(ListCreateAPIView):
     queryset = BookingImages.objects.filter()
     serializer_class= BookingImagesSerializer
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser,JSONParser)
 
     def get_parsers(self):
         if getattr(self, 'swagger_fake_view', False):

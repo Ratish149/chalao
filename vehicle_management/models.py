@@ -24,7 +24,7 @@ class Vehicle(models.Model):
     CATEGORY={
         'BUDGET':'BUDGET',
         'PREMIUM':'PREMIUM',
-        'ELETRIC':'ELETRIC',
+        'ELECTRIC':'ELECTRIC',
 
     }
     CONDITION={
