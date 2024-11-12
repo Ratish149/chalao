@@ -21,19 +21,19 @@ class VehicleListCreateView(ListCreateAPIView):
         
         # If user is authenticated and is a vendor, return their vehicles
         if user.is_authenticated and user.user_type == 'VENDOR':
-            return Vehicle.objects.filter(vendor=user)
+            return Vehicle.objects.filter(vendor=user,available=True)
         
         # If user_city is provided, filter vehicles based on vendor's city
         if user_city:
-            return Vehicle.objects.filter(vendor__vendorprofile__city=user_city)  # Assuming vendor has a related VendorProfile
+            return Vehicle.objects.filter(vendor__vendorprofile__city=user_city,available=True)  # Assuming vendor has a related VendorProfile
         
         # If no user_city is provided, return all vehicles
-        return Vehicle.objects.all()
+        return Vehicle.objects.filter(available=True)
 
     def get(self, request, *args, **kwargs):
 
         queryset = self.get_queryset()
-        filters = Q()
+        filters = Q(available=True)
 
         vehicle_name = request.query_params.get('vehicle_name', None)
         vehicle_type = request.query_params.get('vehicle_type', None)
@@ -164,6 +164,12 @@ class BookingListCreateView(ListCreateAPIView):
     queryset = Booking.objects.filter(cancel_status=False)
     serializer_class = BookingSerializer  
 
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        bookings = Booking.objects.filter(user=user, cancel_status=False)  # Get all bookings for the authenticated user
+        serializer = self.get_serializer(bookings, many=True)
+        return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Message':'Please Login First'})
@@ -194,6 +200,8 @@ class BookingListCreateView(ListCreateAPIView):
         )
         booking.save()
         return Response({'Message':'Booking Confirmed'})
+
+    
 
 class BookingImageUploadView(ListCreateAPIView):
     queryset = BookingImages.objects.filter()
