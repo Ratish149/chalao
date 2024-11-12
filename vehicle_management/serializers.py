@@ -1,10 +1,7 @@
 from rest_framework import serializers
-from .models import Vehicle,Booking,Price,BookingImages,ExtendBooking,CancelBooking,VehicleReview
+from .models import Vehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview
 
-class PriceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Price
-        fields = '__all__'
+
 
 class VehicleSerializer(serializers.ModelSerializer):
 

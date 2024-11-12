@@ -3,19 +3,6 @@ from django.db import models
 
 # Create your models here.
 
-class Price(models.Model):
-    DURATION={
-        'DAILY':'DAILY',
-        'WEEKLY':'WEEKLY',
-        'MONTHLY':'MONTHLY',
-    }
-    duration=models.CharField(max_length=100,choices=DURATION)
-    price=models.IntegerField()
-    vehicle=models.ForeignKey('Vehicle',on_delete=models.CASCADE,related_name='prices')
-
-    def __str__(self):
-        return f'{self.vehicle.vehicle_name}'
-
 class Vehicle(models.Model):
     TYPE={
         'BIKE':'BIKE',
@@ -61,6 +48,8 @@ class Vehicle(models.Model):
     registration_number=models.IntegerField(blank=True,null=True)
     insurance_number=models.IntegerField(blank=True,null=True)
     engine_number=models.IntegerField(blank=True,null=True)
+
+    price = models.JSONField(blank=True, null=True)
 
     distance_travelled=models.IntegerField(blank=True,null=True)
     last_service_date=models.DateField(blank=True,null=True)

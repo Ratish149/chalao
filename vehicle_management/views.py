@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from .models import Vehicle,Price,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview
-from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,PriceSerializer,ExtendBookingSerializer,VehicleReviewSerializer
+from .models import Vehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview
+from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,ExtendBookingSerializer,VehicleReviewSerializer
 
 # Create your views here.
 
@@ -105,12 +105,14 @@ class VehicleListCreateView(ListCreateAPIView):
         power = request.data.get('power')
         duration = request.data.get('duration')
         discount = request.data.get('discount')
+        price = request.data.get('price', {})
         
         vehicle=Vehicle.objects.create(
             vendor=vendor,  
             vehicle_name=vehicle_name,
             vehicle_type=vehicle_type,
             thumbnail_image=thumbnail_image,
+            price=price,
             chassis_number=chassis_number,
             registration_number=registration_number,
             insurance_number=insurance_number,
@@ -127,19 +129,9 @@ class VehicleListCreateView(ListCreateAPIView):
             discount=discount
         )
 
-        price=Price.objects.create(
-            vehicle=vehicle,
-            duration=duration,
-            price=discount
-        )
-        price.save()
         vehicle.save()
         return Response({'Message':'Vehicle Added'})
-class PriceListCreateView(ListCreateAPIView):
-    # queryset = Price.objects.all()
-    serializer_class = PriceSerializer
-    def get_queryset(self):
-        return Price.objects.filter(vehicle__vendor=self.request.user)
+
 
 class VehicleEditView(RetrieveUpdateDestroyAPIView):
     queryset = Vehicle.objects.all()
