@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.db.models import Q
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from .models import Vehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview
 from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,ExtendBookingSerializer,VehicleReviewSerializer
+from rest_framework.exceptions import ValidationError
 
 # Create your views here.
 
@@ -136,21 +137,50 @@ class VehicleListCreateView(ListCreateAPIView):
 class VehicleEditView(RetrieveUpdateDestroyAPIView):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
-    parser_classes = (MultiPartParser, FormParser)
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def patch(self, request, *args, **kwargs):
-        
-        vehicle=self.get_object()
-        data=request.data
+        try:
+            vehicle = self.get_object()
+            data = request.data
+            print(data)
+            
+            # Update Vehicle fields based on the Vehicle model
+            vehicle.vehicle_name = data.get('vehicle_name', vehicle.vehicle_name)
+            vehicle.vehicle_type = data.get('vehicle_type', vehicle.vehicle_type)
+            vehicle.thumbnail_image = data.get('thumbnail_image', vehicle.thumbnail_image)
+            vehicle.bike_condition = data.get('bike_condition', vehicle.bike_condition)
+            vehicle.category = data.get('category', vehicle.category)
+            vehicle.theft_assurance = data.get('theft_assurance', vehicle.theft_assurance)
+            vehicle.chassis_number = data.get('chassis_number', vehicle.chassis_number)
+            vehicle.registration_number = data.get('registration_number', vehicle.registration_number)
+            vehicle.insurance_number = data.get('insurance_number', vehicle.insurance_number)
+            vehicle.engine_number = data.get('engine_number', vehicle.engine_number)
+            vehicle.price = data.get('price', vehicle.price)
+            vehicle.distance_travelled = data.get('distance_travelled', vehicle.distance_travelled)
+            vehicle.last_service_date = data.get('last_service_date', vehicle.last_service_date)
+            vehicle.next_service_date = data.get('next_service_date', vehicle.next_service_date)
+            vehicle.next_service_distance = data.get('next_service_distance', vehicle.next_service_distance)
+            vehicle.power = data.get('power', vehicle.power)
+            vehicle.duration = data.get('duration', vehicle.duration)
+            vehicle.discount = data.get('discount', vehicle.discount)
+            vehicle.available = data.get('available', vehicle.available)
 
-        for field,new_value in data.items():
-            if hasattr(vehicle,field):
-                setattr(vehicle,field,new_value)
-                vehicle.save()
-                return Response({'Message':f'Field {field} updated to {new_value} successfully'})
-            else:
-                return Response({'Message':f'Field {field} does not exist'})
-        vehicle.save()
+            # Handle file uploads for Vehicle
+            if 'thumbnail_image' in request.FILES:
+                vehicle.thumbnail_image = request.FILES['thumbnail_image']
+            
+            vehicle.save()
+            return Response({'Message': 'Vehicle updated successfully'})
+
+        except Vehicle.DoesNotExist:
+            return Response({'error': 'Vehicle not found'}, status=404)
+        except ValidationError as e:
+            return Response({'error': str(e)}, status=400)
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return Response({'error': 'An unexpected error occurred'}, status=500)
+
 
 class BookingListCreateView(ListCreateAPIView):
     queryset = Booking.objects.filter(cancel_status=False)
