@@ -198,8 +198,16 @@ class BookingListCreateView(ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         bookings = Booking.objects.filter(user=user, cancel_status=False)  # Get all bookings for the authenticated user
-        serializer = self.get_serializer(bookings, many=True)
-        return Response(serializer.data)
+        booking_serializer = self.get_serializer(bookings, many=True)
+
+        # Prepare the response to include vehicle data within each booking
+        response_data = []
+        for booking in bookings:
+            booking_data = booking_serializer.data[bookings.index(booking)]
+            vehicle_data = VehicleSerializer(booking.vehicle).data  # Serialize the associated vehicle
+            booking_data['vehicle'] = vehicle_data  # Add vehicle data to the booking data
+            response_data.append(booking_data)
+        return Response(response_data)
 
     def create(self, request, *args, **kwargs):
         if not request.user.is_authenticated:

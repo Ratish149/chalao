@@ -10,6 +10,11 @@ class Vehicle(models.Model):
         'ELECTRIC':'ELECTRIC',
         'CAB':'CAB'
     }
+    FUEL={
+        'PETROL':'PETROL',
+        'DIESEL':'DIESEL',
+        'ELECTRIC':'ELECTRIC',
+    }
     DURATION={
         'DAY':'DAY',
         'WEEK':'WEEK',
@@ -43,6 +48,7 @@ class Vehicle(models.Model):
     bike_condition=models.CharField(max_length=100,choices=CONDITION,blank=True,null=True)
     category=models.CharField(max_length=100,choices=CATEGORY,blank=True,null=True)
     theft_assurance=models.CharField(max_length=100,choices=THEFT_ASSURANCE)
+    fuel_type=models.CharField(max_length=100,choices=FUEL,blank=True,null=True,default='PETROL')
     
     chassis_number=models.IntegerField(blank=True,null=True)
     registration_number=models.IntegerField(blank=True,null=True)
