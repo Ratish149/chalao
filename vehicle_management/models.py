@@ -7,7 +7,7 @@ class Vehicle(models.Model):
     TYPE={
         'BIKE':'BIKE',
         'SCOOTER':'SCOOTER',
-        'ELETRIC':'ELETRIC',
+        'ELECTRIC':'ELECTRIC',
         'CAB':'CAB'
     }
     DURATION={
