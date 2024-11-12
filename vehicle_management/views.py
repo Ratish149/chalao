@@ -164,6 +164,12 @@ class BookingListCreateView(ListCreateAPIView):
     queryset = Booking.objects.filter(cancel_status=False)
     serializer_class = BookingSerializer  
 
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        bookings = Booking.objects.filter(user=user, cancel_status=False)  # Get all bookings for the authenticated user
+        serializer = self.get_serializer(bookings, many=True)
+        return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Message':'Please Login First'})
@@ -194,6 +200,8 @@ class BookingListCreateView(ListCreateAPIView):
         )
         booking.save()
         return Response({'Message':'Booking Confirmed'})
+
+    
 
 class BookingImageUploadView(ListCreateAPIView):
     queryset = BookingImages.objects.filter()
