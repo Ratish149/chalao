@@ -229,6 +229,7 @@ class UserProfileView(RetrieveUpdateAPIView):
         try:
             user_profile = UserProfile.objects.get(user=request.user)
             data = request.data
+            print(data)
             
             # Update UserProfile fields
             user_profile.license_number = data.get('license_number', user_profile.license_number)
@@ -309,11 +310,12 @@ class VendorProfileView(RetrieveUpdateAPIView):
             vendor_profile = VendorProfile.objects.get(user=self.request.user)
             data = request.data
             
-            
+            # Update VendorProfile fields
             vendor_profile.pan_no = data.get('pan_no', vendor_profile.pan_no)
             vendor_profile.vat_no = data.get('vat_no', vendor_profile.vat_no)
             vendor_profile.registered_year = data.get('registered_year', vendor_profile.registered_year)
             
+            # Handle file uploads for VendorProfile
             if 'company_registration' in request.FILES:
                 vendor_profile.company_registration = request.FILES['company_registration']
             if 'pan_no_image' in request.FILES:
@@ -321,6 +323,7 @@ class VendorProfileView(RetrieveUpdateAPIView):
             if 'vat_no_image' in request.FILES:
                 vendor_profile.vat_no_image = request.FILES['vat_no_image']
             
+            # Update User fields
             user = vendor_profile.user
             user_fields = ['full_name', 'phonenumber', 'address', 'dateofbirth', 'gender', 
                            'occupation', 'citizenship_number', 'nid_number', 'issued_date', 'issued_district']
@@ -330,13 +333,15 @@ class VendorProfileView(RetrieveUpdateAPIView):
                 if key in data:
                     setattr(user, field, data[key])
             
+            # Handle file uploads for User
             if 'user[citizenship_front]' in request.FILES:
                 user.citizenship_front = request.FILES['user[citizenship_front]']
             if 'user[citizenship_back]' in request.FILES:
                 user.citizenship_back = request.FILES['user[citizenship_back]']
-            if 'user[profile_picture]' in request.FILES['user[profile_picture]']:
+            if 'user[profile_picture]' in request.FILES:
                 user.profile_picture = request.FILES['user[profile_picture]']
             
+            # Save changes
             vendor_profile.save()
             user.save()
             

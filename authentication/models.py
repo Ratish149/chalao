@@ -17,7 +17,6 @@ class User(AbstractUser):
     gender=models.CharField(max_length=10,blank=True,null=True)
     occupation=models.CharField(max_length=100,blank=True,null=True)
 
-
     citizenship_number=models.IntegerField(blank=True,null=True)
     nid_number=models.IntegerField(blank=True,null=True)
     issued_date=models.DateField(blank=True,null=True)
