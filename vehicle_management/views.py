@@ -206,8 +206,7 @@ class BookingListCreateView(ListCreateAPIView):
 
         # Prepare the response to include vehicle data within each booking
         response_data = []
-        for booking in bookings:
-            booking_data = booking_serializer.data[bookings.index(booking)]
+        for booking, booking_data in zip(bookings, booking_serializer.data):  # Use zip to iterate over both
             vehicle_data = VehicleSerializer(booking.vehicle).data  # Serialize the associated vehicle
             booking_data['vehicle'] = vehicle_data  # Add vehicle data to the booking data
             response_data.append(booking_data)
