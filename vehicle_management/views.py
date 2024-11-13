@@ -137,9 +137,6 @@ class VehicleListCreateView(ListCreateAPIView):
         )
 
         vehicle.save()
-        if thumbnail_image:
-            vehicle.thumbnail_image = request.build_absolute_uri(thumbnail_image.url)
-            vehicle.save()
         return Response({'Message':'Vehicle Added'})
 
 
