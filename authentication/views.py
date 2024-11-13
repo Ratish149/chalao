@@ -268,9 +268,6 @@ class UserProfileView(RetrieveUpdateAPIView):
             if 'user[citizenship_back]' in request.FILES:
                 user.citizenship_back = request.FILES['user[citizenship_back]']
             if 'user[profile_picture]' in request.FILES:
-                # Delete the old profile picture if it exists
-                if user.profile_picture:
-                    user.profile_picture.delete(save=False)  # Delete the old file from storage
                 user.profile_picture = request.FILES['user[profile_picture]'] 
             
             user_profile.save()
@@ -286,7 +283,7 @@ class UserProfileView(RetrieveUpdateAPIView):
         except ValidationError as e:
             return Response({'error': str(e)}, status=400)
         except Exception as e:
-            return Response({'error': 'An unexpected error occurred'}, status=500)
+            return Response({'error': str(e)}, status=500)
 
     def get_parsers(self):
         if getattr(self, 'swagger_fake_view', False):
