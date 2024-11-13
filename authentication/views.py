@@ -269,9 +269,9 @@ class UserProfileView(RetrieveUpdateAPIView):
                 user.citizenship_back = request.FILES['user[citizenship_back]']
             if 'user[profile_picture]' in request.FILES:
                 # Delete the old profile picture if it exists
-                if user_profile.profile_picture:
-                    user_profile.profile_picture.delete(save=False)  # Delete the old file from storage
-                user_profile.profile_picture = request.FILES['user[profile_picture]'] 
+                if user.profile_picture:
+                    user.profile_picture.delete(save=False)  # Delete the old file from storage
+                user.profile_picture = request.FILES['user[profile_picture]'] 
             
             user_profile.save()
             user.save()
