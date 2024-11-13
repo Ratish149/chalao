@@ -263,13 +263,13 @@ class UserProfileView(RetrieveUpdateAPIView):
                     setattr(user, field, data[key])
             
             # Handle file uploads for User
+            if 'user[profile_picture]' in request.FILES:
+                user.profile_picture = request.FILES['user[profile_picture]'] 
             if 'user[citizenship_front]' in request.FILES:
                 user.citizenship_front = request.FILES['user[citizenship_front]']
             if 'user[citizenship_back]' in request.FILES:
                 user.citizenship_back = request.FILES['user[citizenship_back]']
-            if 'user[profile_picture]' in request.FILES:
-                user.profile_picture = request.FILES['user[profile_picture]'] 
-            
+    
             user_profile.save()
             user.save()
             
@@ -339,10 +339,7 @@ class VendorProfileView(RetrieveUpdateAPIView):
             if 'user[citizenship_back]' in request.FILES:
                 user.citizenship_back = request.FILES['user[citizenship_back]']
             if 'user[profile_picture]' in request.FILES:
-                # Delete the old profile picture if it exists
-                if vendor_profile.profile_picture:
-                    vendor_profile.profile_picture.delete(save=False)  # Delete the old file from storage
-                vendor_profile.profile_picture = request.FILES['user[profile_picture]'] 
+                user.profile_picture = request.FILES['user[profile_picture]'] 
             
             # Save changes
             vendor_profile.save()
