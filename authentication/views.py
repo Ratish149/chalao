@@ -268,7 +268,10 @@ class UserProfileView(RetrieveUpdateAPIView):
             if 'user[citizenship_back]' in request.FILES:
                 user.citizenship_back = request.FILES['user[citizenship_back]']
             if 'user[profile_picture]' in request.FILES:
-                user.profile_picture = request.FILES['user[profile_picture]']
+                # Delete the old profile picture if it exists
+                if user_profile.profile_picture:
+                    user_profile.profile_picture.delete(save=False)  # Delete the old file from storage
+                user_profile.profile_picture = request.FILES['user[profile_picture]'] 
             
             user_profile.save()
             user.save()
@@ -339,7 +342,10 @@ class VendorProfileView(RetrieveUpdateAPIView):
             if 'user[citizenship_back]' in request.FILES:
                 user.citizenship_back = request.FILES['user[citizenship_back]']
             if 'user[profile_picture]' in request.FILES:
-                user.profile_picture = request.FILES['user[profile_picture]']
+                # Delete the old profile picture if it exists
+                if vendor_profile.profile_picture:
+                    vendor_profile.profile_picture.delete(save=False)  # Delete the old file from storage
+                vendor_profile.profile_picture = request.FILES['user[profile_picture]'] 
             
             # Save changes
             vendor_profile.save()
