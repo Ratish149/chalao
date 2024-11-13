@@ -264,7 +264,10 @@ class UserProfileView(RetrieveUpdateAPIView):
             
             # Handle file uploads for User
             if 'user[profile_picture]' in request.FILES:
-                user.profile_picture = request.FILES['user[profile_picture]'] 
+                try:
+                    user.profile_picture = request.FILES['user[profile_picture]'] 
+                except Exception as e:
+                    return Response({'error': f'Failed to upload profile picture: {str(e)}'}, status=400)
             if 'user[citizenship_front]' in request.FILES:
                 user.citizenship_front = request.FILES['user[citizenship_front]']
             if 'user[citizenship_back]' in request.FILES:
