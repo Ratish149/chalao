@@ -152,6 +152,7 @@ class ChangePasswordView(GenericAPIView):
         user.save()
         return Response({'detail': 'Password changed successfully'})
 
+
 class PasswordResetView(GenericAPIView):
     serializer_class = PasswordResetSerializer
 
@@ -166,49 +167,45 @@ class PasswordResetView(GenericAPIView):
         except User.DoesNotExist:
             return Response({'detail': 'User not found'})
         
-        token=default_token_generator.make_token(user)
-        # user.token=token
-        uid=urlsafe_base64_encode(force_bytes(user.pk))
-        reset_link= f'http://localhost:3000/reset-password/?uid={uid}&token={token}'
-
-        subject = 'Password Reset Link'
-        message=f'Click the following link to reset your password: {reset_link}'
+        otp = get_random_string(length=5,allowed_chars='0123456789')
+        user.otp = otp
+        user.save()
+        subject = 'Password Reset OTP'
+        message=f'OTP to reset your password: {otp}'
 
         try:
             send_mail(
                 subject,
                 message,
                 settings.DEFAULT_FROM_EMAIL,
-                ['ratish.shakya149@gmail.com',email],
+                [email],
                 fail_silently=False,
             )
             return Response({'detail': 'Password reset link sent to your email'})
         except:
             return Response({'detail': 'Failed to send password reset link'})
+        
 
 class PasswordResetConfirmView(GenericAPIView):
     serializer_class = PasswordResetConfirmSerializer
 
     def post(self, request, *args, **kwargs):
-        uid = request.data.get('uid')
-        token = request.data.get('token')
+        email = request.data.get('email')
+        otp=request.data.get('otp')
         new_password = request.data.get('new_password')
         
-        if not uid or not token or not new_password:
-            return Response({'detail': 'UID, token, and new password are required'})
+        if not email or not otp or not new_password:
+            return Response({'detail': 'email, OTP, and new password are required'})
         
+        user=User.objects.get(email=email)
         try:
-            user_id = force_str(urlsafe_base64_decode(uid))
-            user = User.objects.get(pk=user_id)
+            if user.otp == otp:
+                user.set_password(new_password)
+                user.otp=""
+                user.save()
+                return Response({'detail': 'Password reset successful'})
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            return Response({'detail': 'Invalid user ID or token'})
-
-        if default_token_generator.check_token(user, token):   
-            user.set_password(new_password)
-            user.save()
-            return Response({'detail': 'Password reset successful'})
-        else:
-            return Response({'detail': 'Invalid or expired token'})
+            return Response({'detail': 'Invalid user'})
 
 class UserProfileView(RetrieveUpdateAPIView):
     queryset = UserProfile.objects.all()
@@ -239,8 +236,6 @@ class UserProfileView(RetrieveUpdateAPIView):
             # Handle file uploads for UserProfile
             if 'user_image_top' in request.FILES:
                 user_profile.user_image_top = request.FILES['user_image_top']   
-            if 'user_image_bottom' in request.FILES:
-                user_profile.user_image_bottom = request.FILES['user_image_bottom']
             if 'user_image_left' in request.FILES:
                 user_profile.user_image_left = request.FILES['user_image_left']
             if 'user_image_right' in request.FILES:
@@ -248,9 +243,6 @@ class UserProfileView(RetrieveUpdateAPIView):
 
             if 'driving_license_front' in request.FILES:
                 user_profile.driving_license_front = request.FILES['driving_license_front']
-            if 'driving_license_back' in request.FILES:
-                user_profile.driving_license_back = request.FILES['driving_license_back']
-            
 
             # Update User fields
             user = user_profile.user

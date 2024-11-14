@@ -34,7 +34,6 @@ class UserProfile(models.Model):
     user=models.OneToOneField(User,on_delete=models.CASCADE)
 
     user_image_top=models.ImageField(upload_to='profile',blank=True,null=True)
-    user_image_bottom=models.ImageField(upload_to='profile',blank=True,null=True)
     user_image_left=models.ImageField(upload_to='profile',blank=True,null=True)
     user_image_right=models.ImageField(upload_to='profile',blank=True,null=True)
    

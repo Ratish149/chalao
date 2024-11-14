@@ -28,8 +28,8 @@ class PasswordResetSerializer(serializers.Serializer):
     email=serializers.CharField(write_only=True, required=True)
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
-    uid=serializers.CharField()
-    token=serializers.CharField()
+    email=serializers.CharField()
+    otp=serializers.CharField()
     new_password=serializers.CharField(write_only=True)
 
 class UserSerializer(serializers.ModelSerializer):
