@@ -197,7 +197,10 @@ class PasswordResetConfirmView(GenericAPIView):
         if not email or not otp or not new_password:
             return Response({'detail': 'email, OTP, and new password are required'})
         
-        user=User.objects.get(email=email)
+        try:
+            user=User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'})
         try:
             if user.otp == otp:
                 user.set_password(new_password)
