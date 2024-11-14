@@ -204,6 +204,8 @@ class PasswordResetConfirmView(GenericAPIView):
                 user.otp=""
                 user.save()
                 return Response({'detail': 'Password reset successful'})
+            else:
+                return Response({'detail': 'Invalid OTP'})
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
             return Response({'detail': 'Invalid user'})
 
