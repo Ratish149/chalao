@@ -59,14 +59,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = [
             'user',
             'user_image_top',
-            'user_image_bottom',
             'user_image_left',
             'user_image_right',
             'license_number',
             'expiry_date',
             'issued_district',
             'driving_license_front',
-            'driving_license_back',
         ]
 
 class VendorProfileSerializer(serializers.ModelSerializer):
