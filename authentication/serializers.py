@@ -65,6 +65,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'expiry_date',
             'issued_district',
             'driving_license_front',
+            'driving_license_back',
         ]
 
 class VendorProfileSerializer(serializers.ModelSerializer):
