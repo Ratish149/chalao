@@ -41,7 +41,6 @@ class UserProfile(models.Model):
     expiry_date=models.DateField(blank=True,null=True)
     issued_district=models.CharField(max_length=100,blank=True,null=True)
     driving_license_front=models.ImageField(upload_to='driving_license',blank=True,null=True)
-    driving_license_back=models.ImageField(upload_to='driving_license',blank=True,null=True)
 
     def __str__(self):
         return self.user.username
