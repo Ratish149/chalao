@@ -37,6 +37,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            'id',
+            'user_type',
             'full_name',
             'profile_picture',
             'phonenumber',
@@ -50,6 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
             'issued_district',
             'citizenship_front',
             'citizenship_back',
+            'kyc_verified',
             
             ]
 class UserProfileSerializer(serializers.ModelSerializer):

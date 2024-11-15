@@ -10,7 +10,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSignupSerializer,LoginSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer,VerifyOTPSerializer,PasswordResetSerializer,PasswordResetConfirmSerializer,KYCVerificationSerializer
+from .serializers import UserSignupSerializer,LoginSerializer,UserSerializer,UserProfileSerializer,VendorProfileSerializer,ChangePasswordSerializer,VerifyOTPSerializer,PasswordResetSerializer,PasswordResetConfirmSerializer,KYCVerificationSerializer
 from django.contrib.auth import authenticate
 from .models import User,UserProfile,VendorProfile
 from rest_framework.permissions import IsAuthenticated  # Import permission
@@ -379,3 +379,30 @@ class DeleteAccountView(GenericAPIView):
         user = request.user
         user.delete()  # Delete the user account
         return Response({'detail': 'Account deleted successfully'}, status=204)  # Return success response
+
+class GetUserView(GenericAPIView):
+
+    def get(self, request, *args, **kwargs):
+        user_id = request.query_params.get('user_id')
+        try:
+            if user_id:
+                user = User.objects.get(id=user_id)
+                if user.user_type == 'VENDOR':
+                    profile = VendorProfile.objects.get(user=user)
+                    serializer = VendorProfileSerializer(profile)
+                else:
+                    profile = UserProfile.objects.get(user=user)
+                    serializer = UserProfileSerializer(profile)
+                return Response(serializer.data)
+            else:
+                users = User.objects.all()
+                serializer = UserSerializer(users, many=True)
+                return Response(serializer.data)
+        except User.DoesNotExist:
+            return Response({'detail': 'User not found'}, status=404)
+        except VendorProfile.DoesNotExist:
+            return Response({'detail': 'Vendor profile not found'}, status=404)
+        except UserProfile.DoesNotExist:
+            return Response({'detail': 'User profile not found'}, status=404)
+        except Exception as e:
+            return Response({'detail': str(e)}, status=500)

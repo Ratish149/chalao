@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserSignupView,LoginView,VerifyOTPView,UserProfileView,VendorProfileView,ChangePasswordView,PasswordResetView,PasswordResetConfirmView,KYCVerificationView,DeleteAccountView
+from .views import UserSignupView,LoginView,VerifyOTPView,UserProfileView,VendorProfileView,ChangePasswordView,PasswordResetView,PasswordResetConfirmView,KYCVerificationView,DeleteAccountView,GetUserView
 
 urlpatterns = [
     path('signup/', UserSignupView.as_view(), name='signup'),
@@ -12,4 +12,6 @@ urlpatterns = [
     path('vendor-profile/', VendorProfileView.as_view(), name='vendor-profile'),
     path('verify-kyc/', KYCVerificationView.as_view(), name='verify-kyc'),
     path('delete-account/', DeleteAccountView.as_view(), name='delete-account'),
+    path('get-user/', GetUserView.as_view(), name='get-user'),
+    
 ]
