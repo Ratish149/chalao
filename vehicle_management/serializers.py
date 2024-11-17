@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Vehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview
+from .models import Vehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview,PromoCode
 
 
 
@@ -33,3 +33,12 @@ class VehicleReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = VehicleReview
         fields = '__all__'
+
+class PromoCodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PromoCode
+        fields = '__all__'
+        read_only_fields = ('current_uses', 'created_at', 'updated_at')
+
+class ValidatePromoCodeSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=50)

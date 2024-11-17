@@ -1,5 +1,7 @@
 from typing import Iterable
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 # Create your models here.
 
@@ -94,6 +96,7 @@ class Booking(models.Model):
     cancel_status = models.BooleanField(default=False)
     user_verified = models.BooleanField(default=False)
     vendor_verified=models.BooleanField(default=False)
+    promo_code=models.ForeignKey('vehicle_management.PromoCode',on_delete=models.SET_NULL,blank=True,null=True)
     
     def __str__(self):
         return self.user.username + ' - ' + self.vehicle.vehicle_name
@@ -135,4 +138,32 @@ class VehicleReview(models.Model):
 
     def __str__(self) -> str:
         return f'{self.user.username} Reviewed on {self.vehicle.vehicle_name}'
+    
+class PromoCode(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True)
+    discount_percent = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2,
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
+    valid_from = models.DateField(default=timezone.now)
+    valid_until = models.DateField()
+    max_uses = models.IntegerField(default=1)
+    current_uses = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def is_valid(self):
+        now = timezone.now()
+        return (
+            self.is_active and
+            self.valid_from <= now and
+            self.valid_until >= now and
+            self.current_uses < self.max_uses
+        )
+
+    def __str__(self):
+        return self.code
     

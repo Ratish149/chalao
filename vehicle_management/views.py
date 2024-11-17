@@ -1,15 +1,16 @@
-from django.shortcuts import render
+
 from django.db.models import Q
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView,GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from .models import Vehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview
-from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,ExtendBookingSerializer,VehicleReviewSerializer
+from .models import Vehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview,PromoCode
+from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,ExtendBookingSerializer,VehicleReviewSerializer,PromoCodeSerializer,ValidatePromoCodeSerializer
 from rest_framework.exceptions import ValidationError
 import json
+
 
 # Create your views here.
 
@@ -223,8 +224,10 @@ class BookingListCreateView(ListCreateAPIView):
         city=request.data.get('city')
         pickup_location=request.data.get('pickup_location')
         total_price=request.data.get('total_price')
+        promo_code=request.data.get('promo_code')
         
         vehicle=Vehicle.objects.get(id=vehicle_id)
+        promocode=PromoCode.objects.get(code=promo_code)
         
         if vehicle.available:
             vehicle.is_booked=True
@@ -238,12 +241,11 @@ class BookingListCreateView(ListCreateAPIView):
             end_date=end_date,
             city=city,
             pickup_location=pickup_location,
-            total_price=total_price
+            total_price=total_price,
+            promo_code=promocode
         )
         booking.save()
         return Response({'Message':'Booking Confirmed'})
-
-    
 
 class BookingImageUploadView(ListCreateAPIView):
     queryset = BookingImages.objects.filter()
@@ -432,3 +434,59 @@ class VehicleReviewRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         
         instance.delete()
         return Response({'Message': 'Review deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+class PromoCodeListCreateView(ListCreateAPIView):
+    queryset = PromoCode.objects.all()
+    serializer_class = PromoCodeSerializer
+
+class PromoCodeApplyView(GenericAPIView):
+    queryset = PromoCode.objects.all()
+    serializer_class = PromoCodeSerializer
+
+    def post(self, request, pk=None):
+        promo = self.get_object()
+        
+        if not promo.is_valid():
+            return Response({
+                'message': 'This promo code is expired or has reached maximum uses.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        promo.current_uses += 1
+        promo.save()
+
+        return Response({
+            'message': 'Promo code applied successfully',
+            'discount_percent': promo.discount_percent
+        })
+
+class PromoCodeValidateView(GenericAPIView):
+    serializer_class = ValidatePromoCodeSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            promo = PromoCode.objects.get(
+                code=serializer.validated_data['code'],
+                is_active=True
+            )
+            
+            if not promo.is_valid():
+                return Response({
+                    'valid': False,
+                    'message': 'This promo code is expired or has reached maximum uses.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                'valid': True,
+                'discount_percent': promo.discount_percent,
+                'message': 'Promo code is valid'
+            })
+
+        except PromoCode.DoesNotExist:
+            return Response({
+                'valid': False,
+                'message': 'Invalid promo code'
+            }, status=status.HTTP_404_NOT_FOUND)
