@@ -444,7 +444,7 @@ class PromoCodeApplyView(GenericAPIView):
     serializer_class = PromoCodeSerializer
 
     def post(self, request, *args, **kwargs):
-        promo_code = request.data.get('code')  # Get the promo code from the request data
+        promo_code = request.data.get('promo_code')  # Get the promo code from the request data
         
         try:
             promo = PromoCode.objects.get(code=promo_code)  # Retrieve the promo code object
@@ -477,7 +477,7 @@ class PromoCodeValidateView(GenericAPIView):
 
         try:
             promo = PromoCode.objects.get(
-                code=serializer.validated_data['code'],
+                code=serializer.validated_data['promo_code'],
                 is_active=True
             )
             

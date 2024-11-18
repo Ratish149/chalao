@@ -12,7 +12,7 @@ class VehicleSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
-        fields = ['id','vehicle','start_date','end_date','city','pickup_location','total_price','payment_method']
+        fields = ['id','vehicle','start_date','end_date','city','pickup_location','total_price','payment_method','promo_code']
 
 class BookingImagesSerializer(serializers.ModelSerializer):
     class Meta:
