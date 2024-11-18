@@ -443,21 +443,29 @@ class PromoCodeApplyView(GenericAPIView):
     queryset = PromoCode.objects.all()
     serializer_class = PromoCodeSerializer
 
-    def post(self, request, pk=None):
-        promo = self.get_object()
+    def post(self, request, *args, **kwargs):
+        promo_code = request.data.get('code')  # Get the promo code from the request data
         
-        if not promo.is_valid():
+        try:
+            promo = PromoCode.objects.get(code=promo_code)  # Retrieve the promo code object
+            
+            if not promo.is_valid():
+                return Response({
+                    'message': 'This promo code is expired or has reached maximum uses.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            promo.current_uses += 1
+            promo.save()
+
             return Response({
-                'message': 'This promo code is expired or has reached maximum uses.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        promo.current_uses += 1
-        promo.save()
-
-        return Response({
-            'message': 'Promo code applied successfully',
-            'discount_percent': promo.discount_percent
-        })
+                'message': 'Promo code applied successfully',
+                'discount_percent': promo.discount_percent
+            })
+        
+        except PromoCode.DoesNotExist:
+            return Response({
+                'message': 'Invalid promo code'
+            }, status=status.HTTP_404_NOT_FOUND)
 
 class PromoCodeValidateView(GenericAPIView):
     serializer_class = ValidatePromoCodeSerializer
