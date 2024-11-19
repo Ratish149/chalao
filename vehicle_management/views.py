@@ -375,6 +375,7 @@ class CancelBookingView(RetrieveUpdateDestroyAPIView):
         if request.user == booking.user or request.user == booking.vehicle.vendor:
             booking.cancel_status = True
             booking.vehicle.available = True
+            booking.vehicle.save()
             booking.save()           
             CancelBooking.objects.create(
                     booking=booking,
