@@ -398,24 +398,31 @@ class CancelBookingView(RetrieveUpdateDestroyAPIView):
     serializer_class = BookingSerializer
 
     def patch(self, request, *args, **kwargs):
-        booking = self.get_object()
-        remarks = request.data.get('remarks', None)
+        try:
+            booking = self.get_object()
+            remarks = request.data.get('remarks', None)
 
-        if request.user == booking.user or request.user == booking.vehicle.vendor:
-            booking.cancel_status = True
-            
-            vehicle = booking.vehicle  
-            vehicle.available = True  # Set the vehicle's availability to True
-            vehicle.save()  # Save the vehicle's updated status
-            
-            booking.save()           
-            CancelBooking.objects.create(
-                    booking=booking,
-                    remarks=remarks
-            )
-            return Response({'Message': 'Booking Cancelled'})
-        else:
-            return Response({'Message': 'Permission Denied'})
+            if request.user == booking.user or request.user == booking.vehicle.vendor:
+                booking.cancel_status = True
+                
+                vehicle = booking.vehicle  
+                vehicle.available = True  # Set the vehicle's availability to True
+                vehicle.save()  # Save the vehicle's updated status
+                
+                booking.save()           
+                CancelBooking.objects.create(
+                        booking=booking,
+                        remarks=remarks
+                )
+                return Response({'Message': 'Booking Cancelled'})
+            else:
+                return Response({'Message': 'Permission Denied'})
+
+        except Booking.DoesNotExist:
+            return Response({'Message': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(f"Error: {str(e)}")  # Log the error for debugging
+            return Response({'Message': 'An unexpected error occurred'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class VehicleReviewListView(ListCreateAPIView):
     queryset = VehicleReview.objects.all()
