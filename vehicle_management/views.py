@@ -193,7 +193,7 @@ class VehicleEditView(RetrieveUpdateDestroyAPIView):
             print(f"Error: {str(e)}")
             return Response({'error': 'An unexpected error occurred'}, status=500)
 
-class FavouriteVehicleListCreateView(ListCreateAPIView):
+class FavoriteVehicleListCreateView(ListCreateAPIView):
     serializer_class=FavouriteVehicleSerializer
 
     def get_queryset(self):
