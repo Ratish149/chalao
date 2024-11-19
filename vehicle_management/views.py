@@ -5,11 +5,10 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from .models import Vehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview,PromoCode
-from .serializers import VehicleSerializer,BookingSerializer,BookingImagesSerializer,ExtendBookingSerializer,VehicleReviewSerializer,PromoCodeSerializer,ValidatePromoCodeSerializer
+from .models import Vehicle,FavoriteVehicle,Booking,BookingImages,ExtendBooking,CancelBooking,VehicleReview,PromoCode
+from .serializers import VehicleSerializer,FavouriteVehicleSerializer,BookingSerializer,BookingImagesSerializer,ExtendBookingSerializer,VehicleReviewSerializer,PromoCodeSerializer,ValidatePromoCodeSerializer
 from rest_framework.exceptions import ValidationError
 import json
-
 
 # Create your views here.
 
@@ -193,6 +192,36 @@ class VehicleEditView(RetrieveUpdateDestroyAPIView):
         except Exception as e:
             print(f"Error: {str(e)}")
             return Response({'error': 'An unexpected error occurred'}, status=500)
+
+class FavouriteVehicleListCreateView(ListCreateAPIView):
+    serializer_class=FavouriteVehicleSerializer
+
+    def get_queryset(self):
+        return FavoriteVehicle.objects.filter(user=self.request.user)
+    
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response({'Message':'Please Login First'})
+        
+        vehicle_id=request.data.get('vehicle_id')
+        vehicle=Vehicle.objects.get(id=vehicle_id)
+        if FavoriteVehicle.objects.filter(user=request.user,vehicle=vehicle).exists():
+            return Response({'Message':'Vehicle already added to favourites'})
+        favorite_vehicle=FavoriteVehicle.objects.create(user=request.user,vehicle=vehicle)
+        favorite_vehicle.save()
+        return Response({'Message':'Vehicle added to favourites'})
+    
+    def delete(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response({'Message': 'Please Login First'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        vehicle_id = request.data.get('vehicle_id')
+        try:
+            favorite_vehicle = FavoriteVehicle.objects.get(user=request.user, vehicle_id=vehicle_id)
+            favorite_vehicle.delete()
+            return Response({'Message': 'Vehicle removed from favourites'})
+        except FavoriteVehicle.DoesNotExist:
+            return Response({'Message': 'Vehicle not found in favourites'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class BookingListCreateView(ListCreateAPIView):

@@ -76,6 +76,13 @@ class Vehicle(models.Model):
         ordering = [
             '-date_of_upload'
             ]
+
+class FavoriteVehicle(models.Model):
+    user = models.ForeignKey('authentication.User', on_delete=models.CASCADE)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username + ' - ' + self.vehicle.vehicle_name
     
 class Booking(models.Model):    
     PAYMENT_METHOD={
