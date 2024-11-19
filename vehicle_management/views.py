@@ -1,4 +1,3 @@
-
 from django.db.models import Q
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView,GenericAPIView
@@ -201,6 +200,9 @@ class BookingListCreateView(ListCreateAPIView):
     serializer_class = BookingSerializer  
 
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:  # Check if the user is authenticated
+            return Response({'Message': 'Please Login First'}, status=status.HTTP_401_UNAUTHORIZED)  # Return 401 Unauthorized
+
         user = request.user
         bookings = Booking.objects.filter(user=user, cancel_status=False)  # Get all bookings for the authenticated user
         booking_serializer = self.get_serializer(bookings, many=True)
@@ -215,37 +217,54 @@ class BookingListCreateView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return Response({'Message':'Please Login First'})
+            return Response({'Message':'Please Login First'}, status=status.HTTP_401_UNAUTHORIZED)
         
-        user=request.user
-        vehicle_id=request.data.get('vehicle_id')
-        start_date=request.data.get('start_date')
-        end_date=request.data.get('end_date')
-        city=request.data.get('city')
-        pickup_location=request.data.get('pickup_location')
-        total_price=request.data.get('total_price')
-        promo_code=request.data.get('promo_code')
-        
-        vehicle=Vehicle.objects.get(id=vehicle_id)
-        promocode=PromoCode.objects.get(code=promo_code)
-        
-        if vehicle.available:
-            vehicle.is_booked=True
-            vehicle.available=False
-            vehicle.save()
-        
-        booking = Booking.objects.create(
-            user=user,
-            vehicle=vehicle,
-            start_date=start_date,
-            end_date=end_date,
-            city=city,
-            pickup_location=pickup_location,
-            total_price=total_price,
-            promo_code=promocode
-        )
-        booking.save()
-        return Response({'Message':'Booking Confirmed'})
+        user = request.user
+        vehicle_id = request.data.get('vehicle_id')
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        city = request.data.get('city')
+        pickup_location = request.data.get('pickup_location')
+        total_price = request.data.get('total_price')
+        payment_method = request.data.get('payment_method')
+        promo_code = request.data.get('promo_code')
+
+        try:
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+            
+            # Check if promo_code is provided before trying to get it
+            if promo_code:
+                promocode = PromoCode.objects.get(code=promo_code)
+            else:
+                promocode = None  # Set to None if no promo code is provided
+
+            if vehicle.available:
+                vehicle.is_booked = True
+                vehicle.available = False
+                vehicle.save()
+            
+            booking = Booking.objects.create(
+                user=user,
+                vehicle=vehicle,
+                start_date=start_date,
+                end_date=end_date,
+                city=city,
+                pickup_location=pickup_location,
+                total_price=total_price,
+                payment_method=payment_method,
+                promo_code=promocode  # This can be None if no promo code was provided
+            )
+            booking.save()
+            return Response({'Message': 'Booking Confirmed'})
+
+        except Vehicle.DoesNotExist:
+            return Response({'Message': 'Vehicle not found'}, status=status.HTTP_404_NOT_FOUND)
+        except PromoCode.DoesNotExist:
+            # This block will only execute if promo_code was provided but is invalid
+            if promo_code:  # Only return this error if a promo code was actually provided
+                return Response({'Message': 'Promo code not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'Message': 'An unexpected error occurred: ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BookingImageUploadView(ListCreateAPIView):
     queryset = BookingImages.objects.filter()
@@ -441,7 +460,7 @@ class PromoCodeListCreateView(ListCreateAPIView):
 
 class PromoCodeApplyView(GenericAPIView):
     queryset = PromoCode.objects.all()
-    serializer_class = PromoCodeSerializer
+    serializer_class = ValidatePromoCodeSerializer
 
     def post(self, request, *args, **kwargs):
         promo_code = request.data.get('promo_code')  # Get the promo code from the request data
