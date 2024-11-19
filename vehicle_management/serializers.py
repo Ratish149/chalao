@@ -41,4 +41,4 @@ class PromoCodeSerializer(serializers.ModelSerializer):
         read_only_fields = ('current_uses', 'created_at', 'updated_at')
 
 class ValidatePromoCodeSerializer(serializers.Serializer):
-    code = serializers.CharField(max_length=50)
+    promo_code = serializers.CharField(max_length=50)

@@ -156,7 +156,7 @@ class PromoCode(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def is_valid(self):
-        now = timezone.now()
+        now = timezone.now().date()
         return (
             self.is_active and
             self.valid_from <= now and

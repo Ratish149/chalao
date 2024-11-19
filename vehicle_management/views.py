@@ -471,13 +471,18 @@ class PromoCodeValidateView(GenericAPIView):
     serializer_class = ValidatePromoCodeSerializer
 
     def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        promo_code = request.data.get('promo_code')  # Get the promo code from the request data
+        
+        if not promo_code:
+            return Response({
+                'valid': False,
+                'message': 'Promo code is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        print(promo_code)
 
         try:
             promo = PromoCode.objects.get(
-                code=serializer.validated_data['promo_code'],
+                code=promo_code,
                 is_active=True
             )
             
@@ -498,3 +503,10 @@ class PromoCodeValidateView(GenericAPIView):
                 'valid': False,
                 'message': 'Invalid promo code'
             }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            # Log the exception for debugging
+            print(f"Unexpected error: {str(e)}")
+            return Response({
+                'valid': False,
+                'message': 'An unexpected error occurred'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
