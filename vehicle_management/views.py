@@ -268,7 +268,6 @@ class BookingListCreateView(ListCreateAPIView):
                 promocode = None  # Set to None if no promo code is provided
 
             if vehicle.available:
-                vehicle.is_booked = True
                 vehicle.available = False
                 vehicle.save()
             
