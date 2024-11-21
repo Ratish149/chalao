@@ -12,7 +12,6 @@ urlpatterns = [
     path('cancel-booking/<int:pk>', CancelBookingView.as_view(), name='cancel-booking'),
     
     path('promo-codes/', PromoCodeListCreateView.as_view(), name='promo-code-list-create'),
-    path('promo-codes/validate/', PromoCodeValidateView.as_view(), name='promo-code-validate'),
-    path('promo-codes/apply/', PromoCodeApplyView.as_view(), name='promo-code-detail'),
+    path('promo-codes/validate/', PromoCodeValidateApplyView.as_view(), name='promo-code-validate'),
     path('favorite-vehicle/', FavoriteVehicleListCreateView.as_view(), name='favourite-list-create'),
 ]

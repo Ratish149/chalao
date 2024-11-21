@@ -497,35 +497,8 @@ class PromoCodeListCreateView(ListCreateAPIView):
     queryset = PromoCode.objects.all()
     serializer_class = PromoCodeSerializer
 
-class PromoCodeApplyView(GenericAPIView):
+class PromoCodeValidateApplyView(GenericAPIView):
     queryset = PromoCode.objects.all()
-    serializer_class = ValidatePromoCodeSerializer
-
-    def post(self, request, *args, **kwargs):
-        promo_code = request.data.get('promo_code')  # Get the promo code from the request data
-        
-        try:
-            promo = PromoCode.objects.get(code=promo_code)  # Retrieve the promo code object
-            
-            if not promo.is_valid():
-                return Response({
-                    'message': 'This promo code is expired or has reached maximum uses.'
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            promo.current_uses += 1
-            promo.save()
-
-            return Response({
-                'message': 'Promo code applied successfully',
-                'discount_percent': promo.discount_percent
-            })
-        
-        except PromoCode.DoesNotExist:
-            return Response({
-                'message': 'Invalid promo code'
-            }, status=status.HTTP_404_NOT_FOUND)
-
-class PromoCodeValidateView(GenericAPIView):
     serializer_class = ValidatePromoCodeSerializer
 
     def post(self, request):
@@ -536,13 +509,9 @@ class PromoCodeValidateView(GenericAPIView):
                 'valid': False,
                 'message': 'Promo code is required'
             }, status=status.HTTP_400_BAD_REQUEST)
-        print(promo_code)
 
         try:
-            promo = PromoCode.objects.get(
-                code=promo_code,
-                is_active=True
-            )
+            promo = PromoCode.objects.get(code=promo_code, is_active=True)  # Retrieve the promo code object
             
             if not promo.is_valid():
                 return Response({
@@ -550,10 +519,14 @@ class PromoCodeValidateView(GenericAPIView):
                     'message': 'This promo code is expired or has reached maximum uses.'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
+            # Apply the promo code
+            promo.current_uses += 1
+            promo.save()
+
             return Response({
                 'valid': True,
                 'discount_percent': promo.discount_percent,
-                'message': 'Promo code is valid'
+                'message': 'Promo code applied successfully'
             })
 
         except PromoCode.DoesNotExist:
