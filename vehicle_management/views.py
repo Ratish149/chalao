@@ -211,18 +211,22 @@ class FavoriteVehicleListCreateView(ListCreateAPIView):
         favorite_vehicle.save()
         return Response({'Message':'Vehicle added to favourites'})
     
+
+class FavoriteVehicleDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = FavoriteVehicle.objects.all()
+    serializer_class = FavouriteVehicleSerializer
+
     def delete(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Message': 'Please Login First'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        vehicle_id = request.data.get('vehicle_id')
+        vehicle_id = self.kwargs.get('vehicle_id')
         try:
             favorite_vehicle = FavoriteVehicle.objects.get(user=request.user, vehicle_id=vehicle_id)
             favorite_vehicle.delete()
             return Response({'Message': 'Vehicle removed from favourites'})
         except FavoriteVehicle.DoesNotExist:
             return Response({'Message': 'Vehicle not found in favourites'}, status=status.HTTP_404_NOT_FOUND)
-
 
 class BookingListCreateView(ListCreateAPIView):
     queryset = Booking.objects.filter(cancel_status=False)

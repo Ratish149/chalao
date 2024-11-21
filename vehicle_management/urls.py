@@ -14,4 +14,5 @@ urlpatterns = [
     path('promo-codes/', PromoCodeListCreateView.as_view(), name='promo-code-list-create'),
     path('promo-codes/validate/', PromoCodeValidateApplyView.as_view(), name='promo-code-validate'),
     path('favorite-vehicle/', FavoriteVehicleListCreateView.as_view(), name='favourite-list-create'),
+    path('favorite-vehicle/<int:vehicle_id>/', FavoriteVehicleDetailView.as_view(), name='favorite-vehicle-detail'),
 ]
